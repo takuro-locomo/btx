@@ -9,6 +9,7 @@ import { DisclaimerBanner } from "./components/DisclaimerBanner";
 import { FaceCanvas } from "./components/FaceCanvas";
 import { DosePanel } from "./components/DosePanel";
 import { ResultPanel } from "./components/ResultPanel";
+import { LayerPanel } from "./components/LayerPanel";
 import { useSimStore } from "./store/useSimStore";
 
 export default function App() {
@@ -64,6 +65,7 @@ export default function App() {
 
             {/* サイドパネル（右1列） */}
             <div className="space-y-4">
+              <LayerPanel />
               <DosePanel />
             </div>
           </div>

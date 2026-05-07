@@ -129,7 +129,7 @@ export function DosePanel() {
       {/* アクション */}
       <div className="px-4 py-3 border-t border-slate-100 flex gap-2">
         <button
-          onClick={runSimulation}
+          onClick={() => { console.log("[DosePanel] 実行ボタンクリック, points:", points.length); runSimulation(); }}
           disabled={points.length === 0}
           className="flex-1 py-2 rounded-lg bg-cyan-600 text-white text-sm font-medium
             hover:bg-cyan-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"

@@ -16,6 +16,34 @@ import type {
 import { GLABELLA_ZONE, getAllZones } from "../data/zones";
 import { simulate } from "../engine/simulate";
 
+export type MuscleId =
+  | "frontalis"
+  | "corrugator"
+  | "procerus"
+  | "orbicularis_oculi"
+  | "nasalis"
+  | "llsan"
+  | "zygomaticus_major"
+  | "zygomaticus_minor"
+  | "risorius"
+  | "orbicularis_oris"
+  | "dao"
+  | "dli"
+  | "mentalis"
+  | "masseter"
+  | "temporalis"
+  | "platysma";
+
+export type WrinkleToggleId =
+  | "glabellar_lines"
+  | "horizontal_forehead"
+  | "crows_feet"
+  | "bunny_lines"
+  | "perioral_lines"
+  | "marionette_lines"
+  | "chin_dimpling"
+  | "lower_lid_wrinkles";
+
 interface SimStore {
   // ---- 状態 ----
   activeZone: Zone;
@@ -23,6 +51,13 @@ interface SimStore {
   result: SimulationResult | null;
   appMode: AppMode;
   showZones: boolean;
+
+  // ---- レイヤー設定 ----
+  showMuscles: boolean;
+  muscleOpacity: number;           // 0-1
+  faceOpacity: number;             // 0-1
+  muscleVisibility: Record<MuscleId, boolean>;
+  wrinkleVisibility: Record<WrinkleToggleId, boolean>;
 
   // ---- アクション ----
   addPoint: (x: number, y: number) => void;
@@ -33,7 +68,30 @@ interface SimStore {
   reset: () => void;
   setAppMode: (mode: AppMode) => void;
   toggleShowZones: () => void;
+  setShowMuscles: (v: boolean) => void;
+  setMuscleOpacity: (v: number) => void;
+  setFaceOpacity: (v: number) => void;
+  toggleMuscle: (id: MuscleId) => void;
+  toggleWrinkle: (id: WrinkleToggleId) => void;
 }
+
+const ALL_MUSCLES: MuscleId[] = [
+  "frontalis","corrugator","procerus","orbicularis_oculi","nasalis",
+  "llsan","zygomaticus_major","zygomaticus_minor","risorius",
+  "orbicularis_oris","dao","dli","mentalis","masseter","temporalis","platysma",
+];
+const ALL_WRINKLES: WrinkleToggleId[] = [
+  "glabellar_lines","horizontal_forehead","crows_feet","bunny_lines",
+  "perioral_lines","marionette_lines","chin_dimpling","lower_lid_wrinkles",
+];
+
+const defaultMuscleVisibility = Object.fromEntries(
+  ALL_MUSCLES.map((id) => [id, true])
+) as Record<MuscleId, boolean>;
+
+const defaultWrinkleVisibility = Object.fromEntries(
+  ALL_WRINKLES.map((id) => [id, true])
+) as Record<WrinkleToggleId, boolean>;
 
 export const useSimStore = create<SimStore>((set, get) => ({
   activeZone: GLABELLA_ZONE,
@@ -41,6 +99,11 @@ export const useSimStore = create<SimStore>((set, get) => ({
   result: null,
   appMode: "education",
   showZones: true,
+  showMuscles: false,
+  muscleOpacity: 0.65,
+  faceOpacity: 1.0,
+  muscleVisibility: defaultMuscleVisibility,
+  wrinkleVisibility: defaultWrinkleVisibility,
 
   addPoint: (x, y) => {
     const newPoint: InjectionPoint = {
@@ -74,8 +137,21 @@ export const useSimStore = create<SimStore>((set, get) => ({
   runSimulation: () => {
     const { points, activeZone } = get();
     if (points.length === 0) return;
-    const result = simulate(points, activeZone, getAllZones());
-    set({ result });
+    try {
+      const result = simulate(points, activeZone, getAllZones());
+      set({ result });
+    } catch (err) {
+      console.error("[SimStore] simulate() threw:", err);
+      set({
+        result: {
+          wrinkleImprovements: {} as never,
+          predictedSideEffects: [],
+          overallScore: 0,
+          feedback: { summary: `エラー: ${String(err)}`, warnings: [], suggestions: [] },
+          evidenceCitations: [],
+        },
+      });
+    }
   },
 
   reset: () => {
@@ -83,6 +159,16 @@ export const useSimStore = create<SimStore>((set, get) => ({
   },
 
   setAppMode: (mode) => set({ appMode: mode }),
-
   toggleShowZones: () => set((s) => ({ showZones: !s.showZones })),
+  setShowMuscles: (v) => set({ showMuscles: v }),
+  setMuscleOpacity: (v) => set({ muscleOpacity: v }),
+  setFaceOpacity: (v) => set({ faceOpacity: v }),
+  toggleMuscle: (id) =>
+    set((s) => ({
+      muscleVisibility: { ...s.muscleVisibility, [id]: !s.muscleVisibility[id] },
+    })),
+  toggleWrinkle: (id) =>
+    set((s) => ({
+      wrinkleVisibility: { ...s.wrinkleVisibility, [id]: !s.wrinkleVisibility[id] },
+    })),
 }));
