@@ -53,18 +53,19 @@ export function FaceCanvas() {
         {/* ベース顔 SVG */}
         <image href="/face-base.svg" x="0" y="0" width="500" height="600" />
 
-        {/* しわレイヤー — improvement に応じて fade */}
+        {/* しわレイヤー — improvement に応じて fade（1=初期フル表示, 0=完全消失） */}
         <g
-          stroke="#8060a0"
-          strokeWidth="2"
           fill="none"
           strokeLinecap="round"
           opacity={1 - glabellarImprovement}
-          style={{ transition: "opacity 0.6s ease" }}
+          style={{ transition: "opacity 0.8s ease" }}
           aria-hidden="true"
         >
-          <path d="M 235 215 Q 233 225 232 237" />
-          <path d="M 265 215 Q 267 225 268 237" />
+          {/* 眉間の縦じわ "11" — イラスト風ピンク */}
+          <path d="M 235 210 Q 233 222 231 236" stroke="#e09090" strokeWidth="2.2" />
+          <path d="M 265 210 Q 267 222 269 236" stroke="#e09090" strokeWidth="2.2" />
+          <path d="M 237 212 Q 235 223 233 235" stroke="#c87070" strokeWidth="1" opacity="0.5"/>
+          <path d="M 263 212 Q 265 223 267 235" stroke="#c87070" strokeWidth="1" opacity="0.5"/>
         </g>
 
         {/* ゾーンオーバーレイ（教育モード） */}
