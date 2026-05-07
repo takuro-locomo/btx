@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ベース顔 SVG（500x600）
+  ※ これは設計上のプレースホルダー。Phase 1 で解剖学的に正しい SVG に置き換える。
+  ※ 座標系は src/data/zones.ts の zone 座標と一致させる。
+
+  座標ガイド:
+    顔輪郭中央: (250, 300)
+    額中央:     (250, 150)
+    眉毛中央:   (200, 200) / (300, 200)
+    眼窩上縁:   y ≒ 230-240
+    外眼角:     (175, 220) / (325, 220)
+    鼻先:       (250, 350)
+    口中央:     (250, 420)
+    顎先:       (250, 510)
+    下顎角:     (155, 470) / (345, 470)
+-->
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 500 600"
+  width="500"
+  height="600"
+  fill="none"
+  stroke="#334155"
+  stroke-width="1.5"
+>
+  <!-- 顔輪郭 -->
+  <ellipse cx="250" cy="320" rx="135" ry="195" fill="#fef3c7" stroke="#475569" />
+
+  <!-- 額領域（参考） -->
+  <line x1="115" y1="200" x2="385" y2="200" stroke="#cbd5e1" stroke-dasharray="3,3" />
+
+  <!-- 眉毛 -->
+  <path d="M 165 200 Q 200 188 235 200" stroke="#1f2937" stroke-width="3" fill="none" />
+  <path d="M 265 200 Q 300 188 335 200" stroke="#1f2937" stroke-width="3" fill="none" />
+
+  <!-- 目 -->
+  <ellipse cx="200" cy="225" rx="22" ry="9" fill="white" stroke="#1f2937" />
+  <circle cx="200" cy="225" r="5" fill="#1f2937" />
+  <ellipse cx="300" cy="225" rx="22" ry="9" fill="white" stroke="#1f2937" />
+  <circle cx="300" cy="225" r="5" fill="#1f2937" />
+
+  <!-- 鼻 -->
+  <path d="M 250 240 L 240 340 Q 250 355 260 340 Z" fill="none" stroke="#475569" />
+  <ellipse cx="245" cy="350" rx="4" ry="3" fill="none" stroke="#475569" />
+  <ellipse cx="255" cy="350" rx="4" ry="3" fill="none" stroke="#475569" />
+
+  <!-- 口 -->
+  <path
+    d="M 220 420 Q 235 415 250 420 Q 265 415 280 420 Q 265 432 250 432 Q 235 432 220 420 Z"
+    fill="#fca5a5"
+    stroke="#475569"
+  />
+  <line x1="220" y1="420" x2="280" y2="420" stroke="#475569" />
+
+  <!-- 解剖学的参考線（教育モードで表示／本番では非表示にする） -->
+  <g class="anatomy-guides" opacity="0">
+    <!-- 眼窩骨縁 -->
+    <ellipse cx="200" cy="225" rx="35" ry="20" fill="none" stroke="#94a3b8" stroke-dasharray="2,2" />
+    <ellipse cx="300" cy="225" rx="35" ry="20" fill="none" stroke="#94a3b8" stroke-dasharray="2,2" />
+    <!-- 眉毛中央上1cm（FDA-PI禁忌） -->
+    <line x1="240" y1="220" x2="260" y2="220" stroke="#dc2626" stroke-width="2" />
+  </g>
+</svg>
