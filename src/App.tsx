@@ -11,9 +11,12 @@ import { DosePanel } from "./components/DosePanel";
 import { ResultPanel } from "./components/ResultPanel";
 import { LayerPanel } from "./components/LayerPanel";
 import { useSimStore } from "./store/useSimStore";
+import { getAllZones } from "./data/zones";
+
+const ALL_ZONES = getAllZones();
 
 export default function App() {
-  const { activeZone, showZones, toggleShowZones, appMode, setAppMode } = useSimStore();
+  const { activeZone, showZones, toggleShowZones, appMode, setAppMode, setActiveZone } = useSimStore();
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col">
@@ -31,8 +34,17 @@ export default function App() {
           </p>
         </div>
 
-        {/* モード切替 */}
+        {/* 部位選択 + モード切替 */}
         <div className="flex items-center gap-3">
+          <select
+            value={activeZone.id}
+            onChange={(e) => setActiveZone(e.target.value)}
+            className="text-xs border border-slate-200 rounded px-2 py-1 text-slate-700 bg-white font-medium"
+          >
+            {ALL_ZONES.map((z) => (
+              <option key={z.id} value={z.id}>{z.nameJa}</option>
+            ))}
+          </select>
           <label className="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer select-none">
             <input
               type="checkbox"

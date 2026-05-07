@@ -13,7 +13,7 @@ import type {
   SimulationResult,
   AppMode,
 } from "../types/botox";
-import { GLABELLA_ZONE, getAllZones } from "../data/zones";
+import { GLABELLA_ZONE, getAllZones, ZONES } from "../data/zones";
 import { simulate } from "../engine/simulate";
 
 export type MuscleId =
@@ -60,6 +60,7 @@ interface SimStore {
   wrinkleVisibility: Record<WrinkleToggleId, boolean>;
 
   // ---- アクション ----
+  setActiveZone: (id: string) => void;
   addPoint: (x: number, y: number) => void;
   removePoint: (id: string) => void;
   updatePointUnits: (id: string, units: number) => void;
@@ -104,6 +105,11 @@ export const useSimStore = create<SimStore>((set, get) => ({
   faceOpacity: 1.0,
   muscleVisibility: defaultMuscleVisibility,
   wrinkleVisibility: defaultWrinkleVisibility,
+
+  setActiveZone: (id) => {
+    const zone = ZONES[id];
+    if (zone) set({ activeZone: zone, points: [], result: null });
+  },
 
   addPoint: (x, y) => {
     const newPoint: InjectionPoint = {

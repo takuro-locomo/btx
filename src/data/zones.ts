@@ -252,15 +252,279 @@ export const GLABELLA_ZONE: Zone = {
 };
 
 // =====================================================
+// Zone: 額（Forehead）
+// =====================================================
+
+export const FOREHEAD_ZONE: Zone = {
+  id: "forehead",
+  nameJa: "額（横じわ）",
+  nameEn: "Forehead",
+  targetMuscle: "前頭筋（frontalis）",
+  description:
+    "額の横じわの標準治療部位。前頭筋は眉毛挙上の唯一の筋であり、必ず眉間（glabella）とセットで治療すること。単独治療は眉毛下垂リスク大。",
+
+  // ALLU2024: 10–20U / 4–8ポイント。軽症女性8–12U。
+  idealDose: { min: 10, optimal: 16, max: 22 },
+
+  // 6点M字パターン: 眉毛から2.5–3cm上（SVG上は眉線y≈205から45–54px上）
+  idealPoints: [
+    { x: 185, y: 160, recommendedUnits: 3, depth: "intramuscular", description: "左外側前頭筋（眉上約3cm）" },
+    { x: 218, y: 148, recommendedUnits: 3, depth: "intramuscular", description: "左中外側前頭筋" },
+    { x: 248, y: 154, recommendedUnits: 2, depth: "intramuscular", description: "正中左寄り（中央は控えめに）" },
+    { x: 252, y: 154, recommendedUnits: 2, depth: "intramuscular", description: "正中右寄り（中央は控えめに）" },
+    { x: 282, y: 148, recommendedUnits: 3, depth: "intramuscular", description: "右中外側前頭筋" },
+    { x: 315, y: 160, recommendedUnits: 3, depth: "intramuscular", description: "右外側前頭筋（眉上約3cm）" },
+  ],
+
+  // 推奨範囲: 眉毛2.5cm以上上、生え際より下
+  safeZone: [
+    { x: 162, y: 108 },
+    { x: 338, y: 108 },
+    { x: 338, y: 175 },
+    { x: 162, y: 175 },
+  ],
+
+  dangerZones: [
+    {
+      // 眉毛から1.5cm以内 → 眉毛下垂（前頭筋下部の過抑制）
+      // CARR2004: 眉間と必ずセット治療。ALLU2024: 低位置注入で brow ptosis
+      polygon: [
+        { x: 155, y: 175 },
+        { x: 345, y: 175 },
+        { x: 345, y: 210 },
+        { x: 155, y: 210 },
+      ],
+      effect: "brow_ptosis",
+      baseRisk: 0.22,
+      doseAmplifier: 0.03,
+      description: "眉毛から1.5cm未満への注入。前頭筋下部の過抑制による眉毛下垂リスク。",
+    },
+  ],
+
+  improvedWrinkles: ["horizontal_forehead"],
+
+  efficacyCurve: {
+    thresholdDose: 6,
+    optimalDose: 16,
+    saturationDose: 22,
+  },
+
+  evidenceRefs: ["FDA-PI", "CARR2004", "ALLU2024"],
+
+  difficulty: "intermediate",
+
+  companionZones: ["glabella"],
+};
+
+// =====================================================
+// Zone: 目尻・左（Crow's Feet Left）
+// =====================================================
+
+export const CROWS_FEET_LEFT_ZONE: Zone = {
+  id: "crows_feet_left",
+  nameJa: "目尻（左）",
+  nameEn: "Crow's Feet Left",
+  targetMuscle: "眼輪筋外側部（orbicularis oculi, lateral portion）",
+  description:
+    "左目尻のカラスの足跡じわ。外眼角から1–1.5cm外側にC字状に3点注入が標準。眼窩骨縁の外側に厳守。",
+
+  // NEWLUX2024: 片側7.5–15U / 2–3ポイント
+  idealDose: { min: 7, optimal: 12, max: 15 },
+
+  // C字状3点パターン: 外眼角(x≈172, y≈226)から1–1.5cm(≈18–27px)外側
+  idealPoints: [
+    { x: 148, y: 210, recommendedUnits: 4, depth: "superficial", description: "左上方点（外眼角上1cm外側）" },
+    { x: 140, y: 226, recommendedUnits: 5, depth: "superficial", description: "左中央点（外眼角と同高さ、最外側）" },
+    { x: 148, y: 243, recommendedUnits: 3, depth: "superficial", description: "左下方点（外眼角下1cm外側）" },
+  ],
+
+  // 推奨範囲: 眼窩骨縁の外側
+  safeZone: [
+    { x: 112, y: 193 },
+    { x: 163, y: 193 },
+    { x: 163, y: 260 },
+    { x: 112, y: 260 },
+  ],
+
+  dangerZones: [
+    {
+      // 眼窩骨縁の内側 → 眼内・眼瞼部位へのリスク
+      // NEWLUX2024: 外眼角 1cm 以内は lower lid ptosis リスク
+      polygon: [
+        { x: 163, y: 193 },
+        { x: 200, y: 193 },
+        { x: 200, y: 260 },
+        { x: 163, y: 260 },
+      ],
+      effect: "lower_lid_drop",
+      baseRisk: 0.20,
+      doseAmplifier: 0.04,
+      description: "眼窩骨縁より内側への注入。下眼瞼下垂リスク（眼輪筋眼瞼部への拡散）。",
+    },
+    {
+      // 外眼角下1cm以内（頬骨付近）→ 頬部下垂・笑顔非対称
+      polygon: [
+        { x: 130, y: 245 },
+        { x: 175, y: 245 },
+        { x: 175, y: 278 },
+        { x: 130, y: 278 },
+      ],
+      effect: "cheek_droop",
+      baseRisk: 0.18,
+      doseAmplifier: 0.04,
+      description: "外眼角下1cm以内（大頬骨筋に近すぎる）。頬部下垂・笑顔の非対称リスク。",
+    },
+  ],
+
+  improvedWrinkles: ["crows_feet"],
+
+  efficacyCurve: {
+    thresholdDose: 4,
+    optimalDose: 12,
+    saturationDose: 16,
+  },
+
+  evidenceRefs: ["NEWLUX2024", "ALLU2024"],
+
+  difficulty: "intermediate",
+};
+
+// =====================================================
+// Zone: 目尻・右（Crow's Feet Right）
+// =====================================================
+
+export const CROWS_FEET_RIGHT_ZONE: Zone = {
+  id: "crows_feet_right",
+  nameJa: "目尻（右）",
+  nameEn: "Crow's Feet Right",
+  targetMuscle: "眼輪筋外側部（orbicularis oculi, lateral portion）",
+  description:
+    "右目尻のカラスの足跡じわ。外眼角から1–1.5cm外側にC字状に3点注入が標準。眼窩骨縁の外側に厳守。",
+
+  idealDose: { min: 7, optimal: 12, max: 15 },
+
+  // 右側: 外眼角(x≈328, y≈226)から1–1.5cm外側 (x+18〜27)
+  idealPoints: [
+    { x: 352, y: 210, recommendedUnits: 4, depth: "superficial", description: "右上方点（外眼角上1cm外側）" },
+    { x: 360, y: 226, recommendedUnits: 5, depth: "superficial", description: "右中央点（外眼角と同高さ、最外側）" },
+    { x: 352, y: 243, recommendedUnits: 3, depth: "superficial", description: "右下方点（外眼角下1cm外側）" },
+  ],
+
+  safeZone: [
+    { x: 337, y: 193 },
+    { x: 388, y: 193 },
+    { x: 388, y: 260 },
+    { x: 337, y: 260 },
+  ],
+
+  dangerZones: [
+    {
+      polygon: [
+        { x: 300, y: 193 },
+        { x: 337, y: 193 },
+        { x: 337, y: 260 },
+        { x: 300, y: 260 },
+      ],
+      effect: "lower_lid_drop",
+      baseRisk: 0.20,
+      doseAmplifier: 0.04,
+      description: "眼窩骨縁より内側への注入。下眼瞼下垂リスク。",
+    },
+    {
+      polygon: [
+        { x: 325, y: 245 },
+        { x: 370, y: 245 },
+        { x: 370, y: 278 },
+        { x: 325, y: 278 },
+      ],
+      effect: "cheek_droop",
+      baseRisk: 0.18,
+      doseAmplifier: 0.04,
+      description: "外眼角下1cm以内（大頬骨筋に近すぎる）。頬部下垂・笑顔の非対称リスク。",
+    },
+  ],
+
+  improvedWrinkles: ["crows_feet"],
+
+  efficacyCurve: {
+    thresholdDose: 4,
+    optimalDose: 12,
+    saturationDose: 16,
+  },
+
+  evidenceRefs: ["NEWLUX2024", "ALLU2024"],
+
+  difficulty: "intermediate",
+};
+
+// =====================================================
+// Zone: バニーライン（Bunny Lines）
+// =====================================================
+
+export const BUNNY_LINES_ZONE: Zone = {
+  id: "bunny_lines",
+  nameJa: "バニーライン",
+  nameEn: "Bunny Lines",
+  targetMuscle: "鼻筋横部（nasalis, transverse part）",
+  description:
+    "笑ったときに鼻根側方に現れる斜めじわ。左右各1点、鼻骨側方上2/3に注入。LLSANへの拡散に注意（Joker smile）。",
+
+  // ALLU2024: 左右各2–4U（合計4–8U）/ 1点/側
+  idealDose: { min: 4, optimal: 6, max: 8 },
+
+  idealPoints: [
+    { x: 222, y: 260, recommendedUnits: 3, depth: "superficial", description: "左鼻骨側方（nasalis横部）" },
+    { x: 278, y: 260, recommendedUnits: 3, depth: "superficial", description: "右鼻骨側方（nasalis横部）" },
+  ],
+
+  // 推奨範囲: 鼻骨側方の上2/3
+  safeZone: [
+    { x: 212, y: 243 },
+    { x: 288, y: 243 },
+    { x: 288, y: 283 },
+    { x: 212, y: 283 },
+  ],
+
+  dangerZones: [
+    {
+      // 鼻翼基部より下 → LLSAN（上唇鼻翼挙筋）への拡散 → Joker smile
+      // ALLU2024: 鼻翼基部下への拡散警告
+      polygon: [
+        { x: 208, y: 283 },
+        { x: 292, y: 283 },
+        { x: 292, y: 312 },
+        { x: 208, y: 312 },
+      ],
+      effect: "joker_smile",
+      baseRisk: 0.20,
+      doseAmplifier: 0.05,
+      description: "鼻翼基部より下への注入。LLSAN（上唇鼻翼挙筋）への拡散で上唇下垂・Joker smile リスク。",
+    },
+  ],
+
+  improvedWrinkles: ["bunny_lines"],
+
+  efficacyCurve: {
+    thresholdDose: 2,
+    optimalDose: 6,
+    saturationDose: 8,
+  },
+
+  evidenceRefs: ["ALLU2024", "NEWLUX2024"],
+
+  difficulty: "intermediate",
+};
+
+// =====================================================
 // 全 Zone のレジストリ（Phase 2 以降で他部位を追加）
 // =====================================================
 
 export const ZONES: Record<string, Zone> = {
   glabella: GLABELLA_ZONE,
-  // forehead: FOREHEAD_ZONE,         // TODO Phase 2
-  // crows_feet_left: ...,           // TODO Phase 2
-  // crows_feet_right: ...,          // TODO Phase 2
-  // bunny_lines: ...,               // TODO Phase 2
+  forehead: FOREHEAD_ZONE,
+  crows_feet_left: CROWS_FEET_LEFT_ZONE,
+  crows_feet_right: CROWS_FEET_RIGHT_ZONE,
+  bunny_lines: BUNNY_LINES_ZONE,
   // gummy_smile: ...,               // TODO Phase 3
   // lip_flip: ...,                  // TODO Phase 3
   // mentalis: ...,                  // TODO Phase 3
