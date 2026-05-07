@@ -21,7 +21,8 @@ const VB_X = 92, VB_Y = 80, VB_W = 316, VB_H = 445;
 export function FaceCanvas() {
   const {
     points, activeZone, faceOpacity,
-    showZones, addPoint, removePoint,
+    showZones, showSafeZone, showDangerZones,
+    addPoint, removePoint,
   } = useSimStore();
 
   const svgRef = useRef<SVGSVGElement>(null);
@@ -64,14 +65,18 @@ export function FaceCanvas() {
         {/* ── Layer 3: ゾーンオーバーレイ ── */}
         {showZones && (
           <g aria-hidden="true">
-            <polygon
-              points={activeZone.safeZone.map((p) => `${p.x},${p.y}`).join(" ")}
-              fill="rgba(22,163,74,0.10)"
-              stroke="rgba(22,163,74,0.55)"
-              strokeWidth="1.5"
-              strokeDasharray="5,3"
-            />
-            {activeZone.dangerZones
+            {/* 推奨ゾーン（緑） */}
+            {showSafeZone && (
+              <polygon
+                points={activeZone.safeZone.map((p) => `${p.x},${p.y}`).join(" ")}
+                fill="rgba(22,163,74,0.10)"
+                stroke="rgba(22,163,74,0.55)"
+                strokeWidth="1.5"
+                strokeDasharray="5,3"
+              />
+            )}
+            {/* 危険ゾーン（赤） */}
+            {showDangerZones && activeZone.dangerZones
               .filter((dz) => dz.polygon.length > 0)
               .map((dz, i) => (
                 <polygon

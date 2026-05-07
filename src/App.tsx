@@ -16,7 +16,12 @@ import { getAllZones } from "./data/zones";
 const ALL_ZONES = getAllZones();
 
 export default function App() {
-  const { activeZone, showZones, toggleShowZones, appMode, setAppMode, setActiveZone } = useSimStore();
+  const {
+    activeZone, showZones, toggleShowZones,
+    showSafeZone, toggleShowSafeZone,
+    showDangerZones, toggleShowDangerZones,
+    setActiveZone,
+  } = useSimStore();
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col">
@@ -34,8 +39,9 @@ export default function App() {
           </p>
         </div>
 
-        {/* 部位選択 + モード切替 */}
-        <div className="flex items-center gap-3">
+        {/* 部位選択 + ゾーン表示切替 */}
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          {/* 部位セレクター */}
           <select
             value={activeZone.id}
             onChange={(e) => setActiveZone(e.target.value)}
@@ -45,23 +51,49 @@ export default function App() {
               <option key={z.id} value={z.id}>{z.nameJa}</option>
             ))}
           </select>
-          <label className="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={showZones}
-              onChange={toggleShowZones}
-              className="accent-cyan-600"
-            />
-            教育モード
-          </label>
-          <select
-            value={appMode}
-            onChange={(e) => setAppMode(e.target.value as typeof appMode)}
-            className="text-xs border border-slate-200 rounded px-2 py-1 text-slate-600 bg-white"
+
+          {/* 区切り */}
+          <span className="text-slate-300 text-sm">|</span>
+
+          {/* ゾーン表示トグル群 */}
+          <span className="text-xs text-slate-400 font-medium">表示:</span>
+
+          <button
+            onClick={toggleShowZones}
+            className={`text-xs px-2.5 py-1 rounded-full border font-medium transition-colors ${
+              showZones
+                ? "bg-cyan-50 border-cyan-300 text-cyan-700"
+                : "bg-white border-slate-200 text-slate-400"
+            }`}
           >
-            <option value="free_play">自由配置</option>
-            <option value="education">教育モード</option>
-          </select>
+            ガイド
+          </button>
+
+          <button
+            onClick={toggleShowSafeZone}
+            disabled={!showZones}
+            className={`text-xs px-2.5 py-1 rounded-full border font-medium transition-colors ${
+              showZones && showSafeZone
+                ? "bg-green-50 border-green-400 text-green-700"
+                : "bg-white border-slate-200 text-slate-400"
+            } disabled:opacity-40`}
+            title="推奨ゾーン（緑）の表示/非表示"
+          >
+            緑ゾーン
+          </button>
+
+          <button
+            onClick={toggleShowDangerZones}
+            disabled={!showZones}
+            className={`text-xs px-2.5 py-1 rounded-full border font-medium transition-colors ${
+              showZones && showDangerZones
+                ? "bg-red-50 border-red-400 text-red-700"
+                : "bg-white border-slate-200 text-slate-400"
+            } disabled:opacity-40`}
+            title="危険ゾーン（赤）の表示/非表示"
+          >
+            赤ゾーン
+          </button>
         </div>
       </header>
 

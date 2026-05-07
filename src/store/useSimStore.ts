@@ -58,6 +58,8 @@ interface SimStore {
   faceOpacity: number;             // 0-1
   muscleVisibility: Record<MuscleId, boolean>;
   wrinkleVisibility: Record<WrinkleToggleId, boolean>;
+  showSafeZone: boolean;
+  showDangerZones: boolean;
 
   // ---- アクション ----
   setActiveZone: (id: string) => void;
@@ -69,6 +71,8 @@ interface SimStore {
   reset: () => void;
   setAppMode: (mode: AppMode) => void;
   toggleShowZones: () => void;
+  toggleShowSafeZone: () => void;
+  toggleShowDangerZones: () => void;
   setShowMuscles: (v: boolean) => void;
   setMuscleOpacity: (v: number) => void;
   setFaceOpacity: (v: number) => void;
@@ -100,6 +104,8 @@ export const useSimStore = create<SimStore>((set, get) => ({
   result: null,
   appMode: "education",
   showZones: true,
+  showSafeZone: true,
+  showDangerZones: true,
   showMuscles: false,
   muscleOpacity: 0.65,
   faceOpacity: 1.0,
@@ -166,6 +172,8 @@ export const useSimStore = create<SimStore>((set, get) => ({
 
   setAppMode: (mode) => set({ appMode: mode }),
   toggleShowZones: () => set((s) => ({ showZones: !s.showZones })),
+  toggleShowSafeZone: () => set((s) => ({ showSafeZone: !s.showSafeZone })),
+  toggleShowDangerZones: () => set((s) => ({ showDangerZones: !s.showDangerZones })),
   setShowMuscles: (v) => set({ showMuscles: v }),
   setMuscleOpacity: (v) => set({ muscleOpacity: v }),
   setFaceOpacity: (v) => set({ faceOpacity: v }),
