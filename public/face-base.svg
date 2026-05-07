@@ -1,231 +1,380 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  face-base.svg — フラットイラスト風 正面顔
+  face-base.svg — 医療教育用 正面顔イラスト（リアル寄り）
   座標系: 500x600
 
-  医学的ランドマーク (zones.ts と一致):
+  医学的ランドマーク (zones.ts / WrinkleLayer と一致):
     眉毛中央:   (200, 200) / (300, 200)
-    眼窩上縁:   y ≒ 238
+    眼窩上縁:   y ≒ 215
     外眼角:     (172, 228) / (328, 228)
     内眼角:     (222, 228) / (278, 228)
-    鼻先:       (250, 350)
-    鼻翼外縁:   (228, 345) / (272, 345)
+    鼻先:       (250, 358)
+    鼻翼外縁:   (230, 348) / (270, 348)
     口中央:     (250, 418)
     口角:       (220, 418) / (280, 418)
     顎先:       (250, 502)
     下顎角:     (155, 458) / (345, 458)
 -->
-<svg
-  xmlns="http://www.w3.org/2000/svg"
-  viewBox="0 0 500 600"
-  width="500"
-  height="600"
->
-  <rect width="500" height="600" fill="#fff8f4"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 600" width="500" height="600">
+  <defs>
+    <!-- 肌グラデーション（中央明、外側暗） -->
+    <radialGradient id="skinGrad" cx="50%" cy="40%" r="58%" gradientUnits="objectBoundingBox">
+      <stop offset="0%"   stop-color="#f2c9a0"/>
+      <stop offset="45%"  stop-color="#e0b080"/>
+      <stop offset="80%"  stop-color="#c8926a"/>
+      <stop offset="100%" stop-color="#b87e55"/>
+    </radialGradient>
+    <!-- 側面の影 -->
+    <linearGradient id="leftShadow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#9a6838" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#9a6838" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="rightShadow" x1="100%" y1="0%" x2="0%" y2="0%">
+      <stop offset="0%"   stop-color="#9a6838" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#9a6838" stop-opacity="0"/>
+    </linearGradient>
+    <!-- 首グラデーション -->
+    <linearGradient id="neckGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#d8a070"/>
+      <stop offset="100%" stop-color="#c08860"/>
+    </linearGradient>
+    <!-- 目クリップ -->
+    <clipPath id="lEyeClip">
+      <ellipse cx="197" cy="228" rx="27" ry="13"/>
+    </clipPath>
+    <clipPath id="rEyeClip">
+      <ellipse cx="303" cy="228" rx="27" ry="13"/>
+    </clipPath>
+    <!-- 唇グラデーション -->
+    <linearGradient id="lipGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#c07070"/>
+      <stop offset="100%" stop-color="#e89090"/>
+    </linearGradient>
+  </defs>
 
-  <!-- ========== 首 ========== -->
+  <!-- ===== 背景 ===== -->
+  <rect width="500" height="600" fill="#f0ece8"/>
+
+  <!-- ===== 首 ===== -->
   <path
-    d="M 220 500 L 215 558 L 285 558 L 280 500"
-    fill="#f0d0b0" stroke="#c8824a" stroke-width="2" stroke-linejoin="round"
+    d="M 218 496 L 213 558 L 287 558 L 282 496 Q 268 504 250 505 Q 232 504 218 496 Z"
+    fill="url(#neckGrad)" stroke="#9a7050" stroke-width="1.5"
   />
+  <!-- 胸鎖乳突筋の輪郭ヒント -->
+  <path d="M 225 505 C 218 525, 214 545, 213 558" fill="none" stroke="#9a7050" stroke-width="1" opacity="0.3"/>
+  <path d="M 275 505 C 282 525, 286 545, 287 558" fill="none" stroke="#9a7050" stroke-width="1" opacity="0.3"/>
 
-  <!-- ========== 顔輪郭 ========== -->
+  <!-- ===== 顔輪郭（楕円卵形） ===== -->
   <path
     d="
-      M 250 108
-      C 308 108, 368 140, 382 192
-      C 396 244, 390 295, 376 338
-      C 360 385, 344 422, 328 454
-      C 310 486, 282 502, 250 502
-      C 218 502, 190 486, 172 454
-      C 156 422, 140 385, 124 338
-      C 110 295, 104 244, 118 192
-      C 132 140, 192 108, 250 108
+      M 250 110
+      C 312 110, 374 144, 386 200
+      C 398 256, 390 306, 374 348
+      C 356 394, 340 428, 322 458
+      C 304 490, 280 506, 250 506
+      C 220 506, 196 490, 178 458
+      C 160 428, 144 394, 126 348
+      C 110 306, 102 256, 114 200
+      C 126 144, 188 110, 250 110
       Z
     "
-    fill="#f5dcc8"
-    stroke="#c8824a"
-    stroke-width="2.5"
+    fill="url(#skinGrad)"
+    stroke="#9a7050"
+    stroke-width="2"
   />
 
-  <!-- ========== 耳 ========== -->
-  <path
-    d="M 118 278 C 100 272, 90 288, 92 305 C 94 322, 106 332, 120 328"
-    fill="#f0d0b0" stroke="#c8824a" stroke-width="2" fill-opacity="1"
-  />
-  <path
-    d="M 382 278 C 400 272, 410 288, 408 305 C 406 322, 394 332, 380 328"
-    fill="#f0d0b0" stroke="#c8824a" stroke-width="2"
-  />
+  <!-- ===== 顔の立体感（側面シェーディング） ===== -->
+  <rect x="100" y="140" width="140" height="340" fill="url(#leftShadow)" rx="70"/>
+  <rect x="260" y="140" width="140" height="340" fill="url(#rightShadow)" rx="70"/>
 
-  <!-- ========== 髪 ========== -->
-  <!-- 後ろ髪（ベース・やや暗め） -->
+  <!-- 額の中央ハイライト -->
+  <ellipse cx="250" cy="155" rx="52" ry="36" fill="white" opacity="0.10"/>
+
+  <!-- 頬骨のハイライト -->
+  <ellipse cx="168" cy="305" rx="30" ry="18" fill="white" opacity="0.08" transform="rotate(-15 168 305)"/>
+  <ellipse cx="332" cy="305" rx="30" ry="18" fill="white" opacity="0.08" transform="rotate(15 332 305)"/>
+
+  <!-- 頬骨下の陰影 -->
+  <path d="M 145 345 C 155 362, 168 370, 182 368" fill="none" stroke="#9a6838" stroke-width="14" stroke-opacity="0.12" stroke-linecap="round"/>
+  <path d="M 355 345 C 345 362, 332 370, 318 368" fill="none" stroke="#9a6838" stroke-width="14" stroke-opacity="0.12" stroke-linecap="round"/>
+
+  <!-- 下顎の陰影 -->
+  <ellipse cx="250" cy="494" rx="48" ry="14" fill="#9a6838" opacity="0.09"/>
+
+  <!-- ===== 耳 ===== -->
+  <!-- 左耳 -->
+  <path
+    d="M 121 268 C 100 256, 88 278, 90 300 C 92 322, 110 338, 126 330
+       C 120 322, 115 308, 116 295 C 117 282, 120 274, 121 268 Z"
+    fill="#d09870" stroke="#9a7050" stroke-width="1.5"
+  />
+  <!-- 耳甲介 -->
+  <path d="M 106 280 C 110 292, 110 310, 106 320" fill="none" stroke="#9a7050" stroke-width="1.2" opacity="0.45"/>
+  <path d="M 112 285 C 114 295, 114 308, 111 318" fill="none" stroke="#9a7050" stroke-width="0.8" opacity="0.3"/>
+
+  <!-- 右耳 -->
+  <path
+    d="M 379 268 C 400 256, 412 278, 410 300 C 408 322, 390 338, 374 330
+       C 380 322, 385 308, 384 295 C 383 282, 380 274, 379 268 Z"
+    fill="#d09870" stroke="#9a7050" stroke-width="1.5"
+  />
+  <path d="M 394 280 C 390 292, 390 310, 394 320" fill="none" stroke="#9a7050" stroke-width="1.2" opacity="0.45"/>
+  <path d="M 388 285 C 386 295, 386 308, 389 318" fill="none" stroke="#9a7050" stroke-width="0.8" opacity="0.3"/>
+
+  <!-- ===== 髪（ダーク、リアル系） ===== -->
+  <!-- 髪ベース -->
   <path
     d="
-      M 130 210
-      C 122 175, 128 138, 152 112
-      C 176 88, 212 76, 250 76
-      C 288 76, 324 88, 348 112
-      C 372 138, 378 175, 370 210
-      C 362 188, 348 172, 330 162
-      C 308 150, 280 144, 250 144
-      C 220 144, 192 150, 170 162
-      C 152 172, 138 188, 130 210
+      M 124 220
+      C 118 182, 126 148, 154 120
+      C 180 94, 214 80, 250 80
+      C 286 80, 320 94, 346 120
+      C 374 148, 382 182, 376 220
+      C 368 198, 352 178, 330 165
+      C 306 150, 280 142, 250 142
+      C 220 142, 194 150, 170 165
+      C 148 178, 132 198, 124 220
       Z
     "
-    fill="#c8a882" stroke="none"
+    fill="#3a2a1a"
   />
-  <!-- 前髪（自然なヘアライン） -->
+  <!-- 髪の表面 -->
   <path
     d="
-      M 138 205
-      C 136 178, 144 148, 162 126
-      C 180 106, 212 92, 250 92
-      C 288 92, 320 106, 338 126
-      C 356 148, 364 178, 362 205
-      C 354 188, 340 175, 322 166
-      C 302 156, 278 150, 250 150
-      C 222 150, 198 156, 178 166
-      C 160 175, 146 188, 138 205
+      M 130 216
+      C 128 182, 138 150, 164 126
+      C 190 102, 218 88, 250 88
+      C 282 88, 310 102, 336 126
+      C 362 150, 372 182, 370 216
+      C 362 196, 346 178, 326 167
+      C 303 154, 278 147, 250 147
+      C 222 147, 197 154, 174 167
+      C 154 178, 138 196, 130 216
       Z
     "
-    fill="#d4b490" stroke="#b08858" stroke-width="1.5"
+    fill="#5a4030" stroke="#2a1a0a" stroke-width="1"
   />
-  <!-- 自然なヘアライン（波うち） -->
+  <!-- 光沢ハイライト -->
+  <path d="M 212 95 C 235 87, 265 87, 288 95 C 265 91, 235 91, 212 95 Z" fill="#8a6848" opacity="0.55"/>
+  <!-- 毛流れ -->
+  <path d="M 196 96 C 188 115, 182 136, 180 155" fill="none" stroke="#8a6848" stroke-width="1.8" opacity="0.38"/>
+  <path d="M 225 90 C 222 112, 220 132, 221 150" fill="none" stroke="#8a6848" stroke-width="1.8" opacity="0.38"/>
+  <path d="M 250 88 C 250 110, 250 130, 250 147" fill="none" stroke="#8a6848" stroke-width="1.8" opacity="0.38"/>
+  <path d="M 275 90 C 278 112, 280 132, 279 150" fill="none" stroke="#8a6848" stroke-width="1.8" opacity="0.38"/>
+  <path d="M 304 96 C 312 115, 318 136, 320 155" fill="none" stroke="#8a6848" stroke-width="1.8" opacity="0.38"/>
+
+  <!-- ===== 眉毛（立体的） ===== -->
+  <!-- 眉毛の影（ベース） -->
   <path
-    d="M 142 200 C 150 185, 160 172, 175 164"
-    fill="none" stroke="#b08858" stroke-width="1" opacity="0.5"
+    d="M 163 207 Q 183 193, 204 191 Q 222 189, 237 199"
+    stroke="#3a2810" stroke-width="9" stroke-linecap="round" fill="none" opacity="0.85"
   />
   <path
-    d="M 358 200 C 350 185, 340 172, 325 164"
-    fill="none" stroke="#b08858" stroke-width="1" opacity="0.5"
+    d="M 263 199 Q 278 189, 296 191 Q 317 193, 337 207"
+    stroke="#3a2810" stroke-width="9" stroke-linecap="round" fill="none" opacity="0.85"
   />
-  <!-- 流れを示すストランドライン -->
-  <path d="M 210 98 C 202 112, 196 128, 192 148" fill="none" stroke="#b08858" stroke-width="1.2" opacity="0.45"/>
-  <path d="M 235 94 C 234 110, 234 128, 235 148" fill="none" stroke="#b08858" stroke-width="1.2" opacity="0.45"/>
-  <path d="M 260 94 C 261 110, 262 128, 263 148" fill="none" stroke="#b08858" stroke-width="1.2" opacity="0.45"/>
-  <path d="M 290 98 C 298 112, 304 128, 308 148" fill="none" stroke="#b08858" stroke-width="1.2" opacity="0.45"/>
+  <!-- 眉毛の表面（やや明るめ） -->
+  <path
+    d="M 166 206 Q 185 193, 205 191 Q 222 190, 235 199"
+    stroke="#6a4825" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.7"
+  />
+  <path
+    d="M 265 199 Q 279 190, 296 191 Q 315 193, 334 206"
+    stroke="#6a4825" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.7"
+  />
+  <!-- 眉毛の毛の流れ -->
+  <path d="M 175 205 L 175 198" stroke="#8a6040" stroke-width="1" opacity="0.4"/>
+  <path d="M 190 199 L 191 191" stroke="#8a6040" stroke-width="1" opacity="0.4"/>
+  <path d="M 208 194 L 210 186" stroke="#8a6040" stroke-width="1" opacity="0.4"/>
+  <path d="M 225 193 L 228 185" stroke="#8a6040" stroke-width="1" opacity="0.4"/>
+  <path d="M 275 193 L 272 185" stroke="#8a6040" stroke-width="1" opacity="0.4"/>
+  <path d="M 292 194 L 290 186" stroke="#8a6040" stroke-width="1" opacity="0.4"/>
+  <path d="M 310 199 L 309 191" stroke="#8a6040" stroke-width="1" opacity="0.4"/>
+  <path d="M 325 205 L 325 198" stroke="#8a6040" stroke-width="1" opacity="0.4"/>
+
+  <!-- ===== 眼窩のくぼみ（目の周囲の立体感） ===== -->
+  <ellipse cx="197" cy="232" rx="36" ry="24" fill="#9a6838" opacity="0.07"/>
+  <ellipse cx="303" cy="232" rx="36" ry="24" fill="#9a6838" opacity="0.07"/>
+
+  <!-- ===== 左目 ===== -->
+  <!-- 上まぶたの皮膚（二重の折れ目部分） -->
+  <path
+    d="M 170 228 Q 183 214, 197 212 Q 212 214, 224 228 Q 212 220, 197 219 Q 183 220, 170 228 Z"
+    fill="#d8a878"
+  />
+  <!-- 白目 -->
+  <ellipse cx="197" cy="228" rx="27" ry="13" fill="white"/>
+  <!-- 虹彩 -->
+  <circle cx="197" cy="228" r="11.5" fill="#6a4828" clip-path="url(#lEyeClip)"/>
+  <!-- 虹彩テクスチャ（放射状） -->
+  <path d="M 197 217 L 197 215" stroke="#8a6040" stroke-width="0.8" opacity="0.6" clip-path="url(#lEyeClip)"/>
+  <path d="M 204 219 L 206 217" stroke="#8a6040" stroke-width="0.8" opacity="0.6" clip-path="url(#lEyeClip)"/>
+  <path d="M 190 219 L 188 217" stroke="#8a6040" stroke-width="0.8" opacity="0.6" clip-path="url(#lEyeClip)"/>
+  <path d="M 208 224 L 210 222" stroke="#8a6040" stroke-width="0.8" opacity="0.5" clip-path="url(#lEyeClip)"/>
+  <path d="M 186 224 L 184 222" stroke="#8a6040" stroke-width="0.8" opacity="0.5" clip-path="url(#lEyeClip)"/>
+  <!-- 瞳孔 -->
+  <circle cx="197" cy="228" r="5.5" fill="#100802" clip-path="url(#lEyeClip)"/>
   <!-- ハイライト -->
+  <circle cx="201" cy="224" r="3.2" fill="white" opacity="0.88"/>
+  <circle cx="193" cy="232" r="1.5" fill="white" opacity="0.35"/>
+  <!-- 上まぶたライン（アイラインに相当） -->
   <path
-    d="M 210 100 C 230 90, 270 90, 290 100 C 270 96, 230 96, 210 100 Z"
-    fill="#e8caa8" opacity="0.5"
+    d="M 170 228 Q 182 213, 197 211 Q 212 213, 224 228"
+    fill="none" stroke="#1e1008" stroke-width="2.8" stroke-linecap="round"
   />
+  <!-- 上まぶたの陰 -->
+  <path
+    d="M 172 227 Q 185 218, 197 217 Q 210 218, 222 227"
+    fill="none" stroke="#3a2010" stroke-width="1.5" opacity="0.4"
+  />
+  <!-- 下まぶた -->
+  <path
+    d="M 170 228 Q 183 240, 197 241 Q 212 240, 224 228"
+    fill="none" stroke="#a07848" stroke-width="1.5" stroke-linecap="round" opacity="0.65"
+  />
+  <!-- 内眼角（涙丘） -->
+  <path d="M 172 228 Q 174 231, 177 229" fill="#e8a080" stroke="#b07050" stroke-width="0.8" opacity="0.6"/>
+  <!-- 睫毛（上） -->
+  <path d="M 174 221 L 170 213" stroke="#1e1008" stroke-width="2"  fill="none" stroke-linecap="round"/>
+  <path d="M 183 215 L 181 207" stroke="#1e1008" stroke-width="2"  fill="none" stroke-linecap="round"/>
+  <path d="M 193 213 L 192 205" stroke="#1e1008" stroke-width="2"  fill="none" stroke-linecap="round"/>
+  <path d="M 202 214 L 203 206" stroke="#1e1008" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <path d="M 211 217 L 214 210" stroke="#1e1008" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <path d="M 220 222 L 224 216" stroke="#1e1008" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <!-- 下睫毛 -->
+  <path d="M 177 235 L 175 241" stroke="#5a3820" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <path d="M 187 239 L 186 245" stroke="#5a3820" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <path d="M 197 241 L 197 247" stroke="#5a3820" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <path d="M 208 239 L 209 245" stroke="#5a3820" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <path d="M 218 235 L 220 241" stroke="#5a3820" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <!-- 目の下の影（クマ） -->
+  <path d="M 174 241 Q 197 248, 221 241" fill="none" stroke="#9a7050" stroke-width="2" opacity="0.1"/>
 
-  <!-- ========== 眉毛 ========== -->
+  <!-- ===== 右目 ===== -->
+  <!-- 上まぶたの皮膚 -->
   <path
-    d="M 168 202 Q 188 190, 208 190 Q 224 190, 236 198"
-    stroke="#a07850" stroke-width="5" stroke-linecap="round" fill="none"
+    d="M 276 228 Q 288 214, 303 212 Q 318 214, 330 228 Q 318 220, 303 219 Q 288 220, 276 228 Z"
+    fill="#d8a878"
   />
+  <!-- 白目 -->
+  <ellipse cx="303" cy="228" rx="27" ry="13" fill="white"/>
+  <!-- 虹彩 -->
+  <circle cx="303" cy="228" r="11.5" fill="#6a4828" clip-path="url(#rEyeClip)"/>
+  <!-- 虹彩テクスチャ -->
+  <path d="M 303 217 L 303 215" stroke="#8a6040" stroke-width="0.8" opacity="0.6" clip-path="url(#rEyeClip)"/>
+  <path d="M 310 219 L 312 217" stroke="#8a6040" stroke-width="0.8" opacity="0.6" clip-path="url(#rEyeClip)"/>
+  <path d="M 296 219 L 294 217" stroke="#8a6040" stroke-width="0.8" opacity="0.6" clip-path="url(#rEyeClip)"/>
+  <path d="M 314 224 L 316 222" stroke="#8a6040" stroke-width="0.8" opacity="0.5" clip-path="url(#rEyeClip)"/>
+  <path d="M 292 224 L 290 222" stroke="#8a6040" stroke-width="0.8" opacity="0.5" clip-path="url(#rEyeClip)"/>
+  <!-- 瞳孔 -->
+  <circle cx="303" cy="228" r="5.5" fill="#100802" clip-path="url(#rEyeClip)"/>
+  <!-- ハイライト -->
+  <circle cx="307" cy="224" r="3.2" fill="white" opacity="0.88"/>
+  <circle cx="299" cy="232" r="1.5" fill="white" opacity="0.35"/>
+  <!-- 上まぶたライン -->
   <path
-    d="M 264 198 Q 276 190, 292 190 Q 312 190, 332 202"
-    stroke="#a07850" stroke-width="5" stroke-linecap="round" fill="none"
+    d="M 276 228 Q 288 213, 303 211 Q 318 213, 330 228"
+    fill="none" stroke="#1e1008" stroke-width="2.8" stroke-linecap="round"
   />
+  <!-- 上まぶたの陰 -->
+  <path
+    d="M 278 227 Q 290 218, 303 217 Q 316 218, 328 227"
+    fill="none" stroke="#3a2010" stroke-width="1.5" opacity="0.4"
+  />
+  <!-- 下まぶた -->
+  <path
+    d="M 276 228 Q 289 240, 303 241 Q 318 240, 330 228"
+    fill="none" stroke="#a07848" stroke-width="1.5" stroke-linecap="round" opacity="0.65"
+  />
+  <!-- 内眼角 -->
+  <path d="M 328 228 Q 326 231, 323 229" fill="#e8a080" stroke="#b07050" stroke-width="0.8" opacity="0.6"/>
+  <!-- 睫毛（上） -->
+  <path d="M 280 221 L 276 213" stroke="#1e1008" stroke-width="2"  fill="none" stroke-linecap="round"/>
+  <path d="M 289 215 L 287 207" stroke="#1e1008" stroke-width="2"  fill="none" stroke-linecap="round"/>
+  <path d="M 299 213 L 298 205" stroke="#1e1008" stroke-width="2"  fill="none" stroke-linecap="round"/>
+  <path d="M 308 214 L 309 206" stroke="#1e1008" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <path d="M 317 217 L 320 210" stroke="#1e1008" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <path d="M 326 222 L 330 216" stroke="#1e1008" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <!-- 下睫毛 -->
+  <path d="M 283 235 L 281 241" stroke="#5a3820" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <path d="M 293 239 L 292 245" stroke="#5a3820" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <path d="M 303 241 L 303 247" stroke="#5a3820" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <path d="M 314 239 L 315 245" stroke="#5a3820" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <path d="M 324 235 L 326 241" stroke="#5a3820" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+  <!-- 目の下の影 -->
+  <path d="M 279 241 Q 303 248, 327 241" fill="none" stroke="#9a7050" stroke-width="2" opacity="0.1"/>
 
-  <!-- ========== 目 ========== -->
-  <!-- 左目 白目 -->
-  <path
-    d="M 172 228 Q 197 212, 222 228 Q 197 244, 172 228 Z"
-    fill="white"
-  />
-  <!-- 左目 虹彩 -->
-  <circle cx="197" cy="228" r="11" fill="#8b6040"/>
-  <circle cx="197" cy="228" r="11" fill="none" stroke="#6b4828" stroke-width="1"/>
-  <!-- 左目 瞳孔 -->
-  <circle cx="197" cy="228" r="5.5" fill="#2a1808"/>
-  <!-- 左目 ハイライト -->
-  <circle cx="201" cy="224" r="3" fill="white" opacity="0.9"/>
-  <!-- 左目 アウトライン -->
-  <path
-    d="M 172 228 Q 197 210, 222 228"
-    fill="none" stroke="#c8824a" stroke-width="2" stroke-linecap="round"
-  />
-  <path
-    d="M 172 228 Q 197 246, 222 228"
-    fill="none" stroke="#c8824a" stroke-width="1.5" stroke-linecap="round"
-  />
-  <!-- 左目 睫毛 -->
-  <path d="M 176 222 Q 172 215, 170 210" stroke="#a06030" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-  <path d="M 185 216 Q 183 209, 182 204" stroke="#a06030" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-  <path d="M 197 213 Q 197 206, 197 201" stroke="#a06030" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-  <path d="M 208 216 Q 210 209, 212 204" stroke="#a06030" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-  <path d="M 218 222 Q 222 215, 224 210" stroke="#a06030" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <!-- ===== 頬の血色 ===== -->
+  <ellipse cx="160" cy="308" rx="42" ry="26" fill="#e08878" opacity="0.10"/>
+  <ellipse cx="340" cy="308" rx="42" ry="26" fill="#e08878" opacity="0.10"/>
 
-  <!-- 右目 白目 -->
+  <!-- ===== 鼻 ===== -->
+  <!-- 鼻根（眉間との接続部）の陰影 -->
+  <path d="M 240 252 C 238 268, 236 284, 235 298" fill="none" stroke="#9a7050" stroke-width="3" stroke-linecap="round" opacity="0.14"/>
+  <path d="M 260 252 C 262 268, 264 284, 265 298" fill="none" stroke="#9a7050" stroke-width="3" stroke-linecap="round" opacity="0.14"/>
+  <!-- 鼻背の縦ラインヒント -->
+  <path d="M 246 255 C 245 295, 244 320, 245 340" fill="none" stroke="#9a7050" stroke-width="1" opacity="0.25"/>
+  <path d="M 254 255 C 255 295, 256 320, 255 340" fill="none" stroke="#9a7050" stroke-width="1" opacity="0.25"/>
+  <!-- 鼻先の形状（立体的） -->
   <path
-    d="M 278 228 Q 303 212, 328 228 Q 303 244, 278 228 Z"
-    fill="white"
+    d="M 232 342 Q 222 350, 222 360 Q 222 370, 232 372 Q 242 374, 250 370 Q 258 374, 268 372 Q 278 370, 278 360 Q 278 350, 268 342 Q 260 338, 250 338 Q 240 338, 232 342 Z"
+    fill="#d8a070" stroke="none" opacity="0.35"
   />
-  <!-- 右目 虹彩 -->
-  <circle cx="303" cy="228" r="11" fill="#8b6040"/>
-  <circle cx="303" cy="228" r="11" fill="none" stroke="#6b4828" stroke-width="1"/>
-  <!-- 右目 瞳孔 -->
-  <circle cx="303" cy="228" r="5.5" fill="#2a1808"/>
-  <!-- 右目 ハイライト -->
-  <circle cx="307" cy="224" r="3" fill="white" opacity="0.9"/>
-  <!-- 右目 アウトライン -->
+  <!-- 鼻翼（左） -->
   <path
-    d="M 278 228 Q 303 210, 328 228"
-    fill="none" stroke="#c8824a" stroke-width="2" stroke-linecap="round"
+    d="M 236 342 Q 224 350, 224 360 Q 224 368, 234 370 Q 244 372, 250 368"
+    fill="none" stroke="#9a6840" stroke-width="2" stroke-linecap="round"
   />
+  <!-- 鼻翼（右） -->
   <path
-    d="M 278 228 Q 303 246, 328 228"
-    fill="none" stroke="#c8824a" stroke-width="1.5" stroke-linecap="round"
+    d="M 264 342 Q 276 350, 276 360 Q 276 368, 266 370 Q 256 372, 250 368"
+    fill="none" stroke="#9a6840" stroke-width="2" stroke-linecap="round"
   />
-  <!-- 右目 睫毛 -->
-  <path d="M 282 222 Q 278 215, 276 210" stroke="#a06030" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-  <path d="M 291 216 Q 289 209, 288 204" stroke="#a06030" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-  <path d="M 303 213 Q 303 206, 303 201" stroke="#a06030" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-  <path d="M 315 216 Q 317 209, 318 204" stroke="#a06030" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-  <path d="M 324 222 Q 328 215, 330 210" stroke="#a06030" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-
-  <!-- ========== 頬の赤み ========== -->
-  <ellipse cx="165" cy="295" rx="32" ry="20" fill="#f0a090" opacity="0.22"/>
-  <ellipse cx="335" cy="295" rx="32" ry="20" fill="#f0a090" opacity="0.22"/>
-
-  <!-- ========== 鼻 ========== -->
-  <!-- 鼻筋（控えめな線） -->
-  <path d="M 244 252 C 242 290, 240 320, 238 340" stroke="#c8824a" stroke-width="1.2" fill="none" opacity="0.5"/>
-  <path d="M 256 252 C 258 290, 260 320, 262 340" stroke="#c8824a" stroke-width="1.2" fill="none" opacity="0.5"/>
-  <!-- 鼻翼 -->
-  <path
-    d="M 238 340 Q 226 348, 226 358 Q 226 366, 236 366 Q 246 366, 250 360"
-    fill="none" stroke="#c8824a" stroke-width="1.8" stroke-linecap="round"
-  />
-  <path
-    d="M 262 340 Q 274 348, 274 358 Q 274 366, 264 366 Q 254 366, 250 360"
-    fill="none" stroke="#c8824a" stroke-width="1.8" stroke-linecap="round"
-  />
+  <!-- 鼻柱 -->
+  <path d="M 246 345 Q 250 365, 250 368" fill="none" stroke="#9a6840" stroke-width="1.5" opacity="0.5"/>
+  <path d="M 254 345 Q 250 365, 250 368" fill="none" stroke="#9a6840" stroke-width="1.5" opacity="0.5"/>
   <!-- 鼻孔 -->
-  <ellipse cx="237" cy="358" rx="6" ry="4" fill="#c8824a" opacity="0.25"/>
-  <ellipse cx="263" cy="358" rx="6" ry="4" fill="#c8824a" opacity="0.25"/>
+  <ellipse cx="236" cy="360" rx="7" ry="5" fill="#6a3820" opacity="0.22"/>
+  <ellipse cx="264" cy="360" rx="7" ry="5" fill="#6a3820" opacity="0.22"/>
+  <!-- 鼻翼外縁の陰影 -->
+  <path d="M 228 348 C 223 355, 222 363, 226 370" fill="none" stroke="#9a6840" stroke-width="2" opacity="0.25"/>
+  <path d="M 272 348 C 277 355, 278 363, 274 370" fill="none" stroke="#9a6840" stroke-width="2" opacity="0.25"/>
 
-  <!-- ========== 口 ========== -->
+  <!-- ===== 鼻唇溝（法令線のヒント） ===== -->
+  <path d="M 228 352 Q 220 386, 220 420" fill="none" stroke="#9a6840" stroke-width="1.5" opacity="0.14"/>
+  <path d="M 272 352 Q 280 386, 280 420" fill="none" stroke="#9a6840" stroke-width="1.5" opacity="0.14"/>
+
+  <!-- ===== 人中 ===== -->
+  <path d="M 244 372 C 242 390, 241 406, 241 415" fill="none" stroke="#9a7050" stroke-width="1.2" opacity="0.25"/>
+  <path d="M 256 372 C 258 390, 259 406, 259 415" fill="none" stroke="#9a7050" stroke-width="1.2" opacity="0.25"/>
+
+  <!-- ===== 口 ===== -->
   <!-- 下唇 -->
   <path
-    d="M 220 418 Q 250 438, 280 418 Q 264 430, 250 431 Q 236 430, 220 418 Z"
-    fill="#e8a090" stroke="#c8824a" stroke-width="1.5" stroke-linejoin="round"
+    d="M 220 418 Q 250 442, 280 418 Q 266 434, 250 435 Q 234 434, 220 418 Z"
+    fill="#cc7e7e" stroke="#9a5a5a" stroke-width="1.5" stroke-linejoin="round"
   />
-  <!-- 上唇 -->
+  <!-- 上唇（キューピッドボウ） -->
   <path
-    d="M 220 418 Q 234 410, 242 414 Q 250 410, 258 414 Q 266 410, 280 418"
-    fill="#e8a090" stroke="#c8824a" stroke-width="1.5" stroke-linejoin="round"
+    d="M 220 418 Q 233 408, 241 412 Q 250 407, 259 412 Q 267 408, 280 418"
+    fill="#c07070" stroke="#9a5a5a" stroke-width="1.5" stroke-linejoin="round"
   />
-  <!-- 口角の影 -->
-  <circle cx="220" cy="418" r="2.5" fill="#c8824a" opacity="0.3"/>
-  <circle cx="280" cy="418" r="2.5" fill="#c8824a" opacity="0.3"/>
+  <!-- 口の合わせ目 -->
+  <path d="M 222 418 Q 250 420, 278 418" fill="none" stroke="#7a3a3a" stroke-width="1" opacity="0.55"/>
+  <!-- 口角のくぼみ -->
+  <circle cx="220" cy="418" r="2.5" fill="#9a5a5a" opacity="0.35"/>
+  <circle cx="280" cy="418" r="2.5" fill="#9a5a5a" opacity="0.35"/>
+  <!-- 下唇のハイライト -->
+  <path d="M 237 428 Q 250 425, 263 428" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.28"/>
 
-  <!-- ========== 人中 ========== -->
-  <path d="M 244 370 C 242 388, 241 404, 242 414" stroke="#c8824a" stroke-width="0.8" fill="none" opacity="0.35"/>
-  <path d="M 256 370 C 258 388, 259 404, 258 414" stroke="#c8824a" stroke-width="0.8" fill="none" opacity="0.35"/>
-
-  <!-- ========== 解剖学的参考線（教育モード専用） ========== -->
+  <!-- ===== 解剖学的参考線（教育モード専用） ===== -->
   <g class="anatomy-guides" opacity="0">
-    <ellipse cx="197" cy="234" rx="34" ry="20"
+    <ellipse cx="197" cy="228" rx="28" ry="16"
       fill="none" stroke="#3b82f6" stroke-width="1" stroke-dasharray="3,3"/>
-    <ellipse cx="303" cy="234" rx="34" ry="20"
+    <ellipse cx="303" cy="228" rx="28" ry="16"
       fill="none" stroke="#3b82f6" stroke-width="1" stroke-dasharray="3,3"/>
-    <line x1="236" y1="242" x2="264" y2="242"
+    <line x1="236" y1="245" x2="264" y2="245"
       stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2,2"/>
-    <text x="267" y="245" font-size="8" fill="#ef4444" font-family="sans-serif">FDA禁忌</text>
+    <text x="267" y="248" font-size="8" fill="#ef4444" font-family="sans-serif">FDA禁忌</text>
   </g>
 </svg>
