@@ -55,28 +55,23 @@ export default function App() {
             onClick={handleSvgClick}
             style={{ maxHeight: 700 }}
           >
-            {/* TODO: face-base.svg の内容をインポート / インライン化 */}
-            <ellipse cx="250" cy="320" rx="135" ry="195" fill="#fef3c7" stroke="#475569" />
-            <path d="M 165 200 Q 200 188 235 200" stroke="#1f2937" strokeWidth="3" fill="none" />
-            <path d="M 265 200 Q 300 188 335 200" stroke="#1f2937" strokeWidth="3" fill="none" />
-            <ellipse cx="200" cy="225" rx="22" ry="9" fill="white" stroke="#1f2937" />
-            <circle cx="200" cy="225" r="5" fill="#1f2937" />
-            <ellipse cx="300" cy="225" rx="22" ry="9" fill="white" stroke="#1f2937" />
-            <circle cx="300" cy="225" r="5" fill="#1f2937" />
+            {/* ベース顔 SVG を背景レイヤーとして読み込む */}
+            <image href="/face-base.svg" x="0" y="0" width="500" height="600" />
 
-            {/* しわ（眉間）— improvement に応じて opacity を変える */}
+            {/* しわレイヤー（眉間）— improvement に応じて opacity を変える */}
             <g
-              stroke="#7c3aed"
-              strokeWidth="2"
+              stroke="#8060a0"
+              strokeWidth="1.8"
               fill="none"
+              strokeLinecap="round"
               opacity={
                 result
                   ? 1 - (result.wrinkleImprovements.glabellar_lines ?? 0)
-                  : 1
+                  : 0.5
               }
             >
-              <path d="M 235 195 Q 232 215 230 235" />
-              <path d="M 265 195 Q 268 215 270 235" />
+              <path d="M 235 215 Q 233 225 232 237" />
+              <path d="M 265 215 Q 267 225 268 237" />
             </g>
 
             {/* 推奨ゾーン（緑、教育モード） */}

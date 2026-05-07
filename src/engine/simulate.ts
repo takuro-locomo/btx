@@ -14,9 +14,6 @@ import type {
   PredictedSideEffect,
   WrinkleId,
   EvidenceRefId,
-  Polygon,
-  Point2D,
-  EfficacyCurveParams,
   Severity,
   SideEffectId,
 } from "../types/botox";
