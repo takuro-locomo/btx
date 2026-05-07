@@ -14,6 +14,10 @@ import { useSimStore } from "../store/useSimStore";
 import { MuscleLayer } from "./MuscleLayer";
 import { WrinkleLayer } from "./WrinkleLayer";
 
+// 顔が画面いっぱいに表示されるよう座標空間をトリミング
+// 500×600 の座標系のうち、顔部分（目尻ゾーン含む）だけを表示
+const VB_X = 92, VB_Y = 80, VB_W = 316, VB_H = 445;
+
 export function FaceCanvas() {
   const {
     points, activeZone, faceOpacity,
@@ -27,18 +31,18 @@ export function FaceCanvas() {
     const svg = svgRef.current;
     if (!svg) return;
     const rect = svg.getBoundingClientRect();
-    const scaleX = 500 / rect.width;
-    const scaleY = 600 / rect.height;
-    addPoint((e.clientX - rect.left) * scaleX, (e.clientY - rect.top) * scaleY);
+    // viewBox のオフセット・スケールを反映してSVG座標に変換
+    const svgX = (e.clientX - rect.left) / rect.width  * VB_W + VB_X;
+    const svgY = (e.clientY - rect.top)  / rect.height * VB_H + VB_Y;
+    addPoint(svgX, svgY);
   };
 
   return (
     <div className="relative">
       <svg
         ref={svgRef}
-        viewBox="0 0 500 600"
-        className="w-full rounded-xl border border-slate-200 shadow-sm cursor-crosshair bg-slate-50"
-        style={{ maxHeight: 680 }}
+        viewBox={`${VB_X} ${VB_Y} ${VB_W} ${VB_H}`}
+        className="w-full rounded-xl border border-slate-200 shadow-sm cursor-crosshair bg-white"
         onClick={handleClick}
         role="img"
         aria-label="顔のイラスト。クリックして注入点を配置"
@@ -62,10 +66,10 @@ export function FaceCanvas() {
           <g aria-hidden="true">
             <polygon
               points={activeZone.safeZone.map((p) => `${p.x},${p.y}`).join(" ")}
-              fill="rgba(22,163,74,0.08)"
-              stroke="rgba(22,163,74,0.4)"
-              strokeWidth="1"
-              strokeDasharray="4,3"
+              fill="rgba(22,163,74,0.10)"
+              stroke="rgba(22,163,74,0.55)"
+              strokeWidth="1.5"
+              strokeDasharray="5,3"
             />
             {activeZone.dangerZones
               .filter((dz) => dz.polygon.length > 0)
@@ -73,10 +77,10 @@ export function FaceCanvas() {
                 <polygon
                   key={i}
                   points={dz.polygon.map((p) => `${p.x},${p.y}`).join(" ")}
-                  fill="rgba(220,38,38,0.08)"
-                  stroke="rgba(220,38,38,0.4)"
-                  strokeWidth="1"
-                  strokeDasharray="4,3"
+                  fill="rgba(220,38,38,0.10)"
+                  stroke="rgba(220,38,38,0.55)"
+                  strokeWidth="1.5"
+                  strokeDasharray="5,3"
                 />
               ))}
           </g>
@@ -84,31 +88,34 @@ export function FaceCanvas() {
 
         {/* ── Layer 4: 注入点マーカー ── */}
         {points.map((p, i) => {
-          const r = Math.max(8, Math.sqrt(p.units) * 4);
+          const r = Math.max(11, Math.sqrt(p.units) * 5);
           const inDanger = activeZone.dangerZones.some(
             (dz) => dz.polygon.length > 0 && isPointInPolygon(p.x, p.y, dz.polygon),
           );
+          const color = inDanger ? { fill: "rgba(220,38,38,0.75)", stroke: "#dc2626", text: "#dc2626" }
+                                 : { fill: "rgba(8,145,178,0.80)", stroke: "#0891b2", text: "#0e7490" };
           return (
             <g key={p.id} data-marker="true">
-              <circle cx={p.x} cy={p.y} r={r + 2} fill="rgba(0,0,0,0.12)" />
-              <circle
-                cx={p.x} cy={p.y} r={r}
-                fill={inDanger ? "rgba(220,38,38,0.7)" : "rgba(8,145,178,0.75)"}
-                stroke={inDanger ? "#dc2626" : "#0891b2"}
-                strokeWidth="1.5"
-              />
-              <text x={p.x} y={p.y - r - 4} textAnchor="middle" fontSize="10"
-                fill={inDanger ? "#dc2626" : "#0e7490"} fontWeight="600" fontFamily="sans-serif">
+              {/* 影 */}
+              <circle cx={p.x} cy={p.y} r={r + 3} fill="rgba(0,0,0,0.14)" />
+              {/* 本体 */}
+              <circle cx={p.x} cy={p.y} r={r}
+                fill={color.fill} stroke={color.stroke} strokeWidth="2"/>
+              {/* 番号 */}
+              <text x={p.x} y={p.y - r - 5} textAnchor="middle" fontSize="12"
+                fill={color.text} fontWeight="700" fontFamily="sans-serif">
                 {i + 1}
               </text>
-              <text x={p.x} y={p.y + 4} textAnchor="middle" fontSize="9"
+              {/* 用量 */}
+              <text x={p.x} y={p.y + 4.5} textAnchor="middle" fontSize="11"
                 fill="white" fontWeight="700" fontFamily="sans-serif">
                 {p.units}U
               </text>
+              {/* 削除ボタン */}
               <g data-marker="true" onClick={(e) => { e.stopPropagation(); removePoint(p.id); }}
                 style={{ cursor: "pointer" }}>
-                <circle cx={p.x + r} cy={p.y - r} r={7} fill="#ef4444" />
-                <text x={p.x + r} y={p.y - r + 4} textAnchor="middle" fontSize="10"
+                <circle cx={p.x + r - 1} cy={p.y - r + 1} r={9} fill="#ef4444" stroke="white" strokeWidth="1.5"/>
+                <text x={p.x + r - 1} y={p.y - r + 5} textAnchor="middle" fontSize="12"
                   fill="white" fontWeight="700" fontFamily="sans-serif">×</text>
               </g>
             </g>
@@ -124,9 +131,9 @@ export function FaceCanvas() {
               );
               if (near) return null;
               return (
-                <circle key={i} cx={ip.x} cy={ip.y} r={6}
-                  fill="none" stroke="rgba(22,163,74,0.5)"
-                  strokeWidth="1.5" strokeDasharray="2,2" />
+                <circle key={i} cx={ip.x} cy={ip.y} r={9}
+                  fill="rgba(22,163,74,0.10)" stroke="rgba(22,163,74,0.6)"
+                  strokeWidth="1.8" strokeDasharray="2,2" />
               );
             })}
           </g>
