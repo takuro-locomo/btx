@@ -74,9 +74,9 @@ export function FaceCanvas() {
             {/* 推奨ゾーン（緑） */}
             <polygon
               points={activeZone.safeZone.map((p) => `${p.x},${p.y}`).join(" ")}
-              fill="rgba(22,163,74,0.12)"
-              stroke="rgba(22,163,74,0.55)"
-              strokeWidth="1.2"
+              fill="rgba(22,163,74,0.08)"
+              stroke="rgba(22,163,74,0.4)"
+              strokeWidth="1"
               strokeDasharray="4,3"
             />
             {/* 危険ゾーン（赤） */}
@@ -86,9 +86,9 @@ export function FaceCanvas() {
                 <polygon
                   key={i}
                   points={dz.polygon.map((p) => `${p.x},${p.y}`).join(" ")}
-                  fill="rgba(220,38,38,0.12)"
-                  stroke="rgba(220,38,38,0.55)"
-                  strokeWidth="1.2"
+                  fill="rgba(220,38,38,0.08)"
+                  stroke="rgba(220,38,38,0.4)"
+                  strokeWidth="1"
                   strokeDasharray="4,3"
                 />
               ))}
