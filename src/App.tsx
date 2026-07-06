@@ -100,18 +100,17 @@ export default function App() {
           <SubtotalBar title="シワ・たるみ" areas={FACE1_AREAS.filter((a) => treated.includes(a.id))} />
         </section>
 
-        {/* ===== 段2：エラ・毛穴・ガミースマイル（専用ビフォーアフター図） ===== */}
+        {/* ===== 段2：エラ・毛穴・ガミースマイル（同じ大きさの顔イラスト） ===== */}
         <section className="mt-8">
           <div className="text-center text-xs font-bold text-rose-400 mb-2">小顔・毛穴・口もと</div>
-          {/* エラ・ガミーは大きめ2枚 */}
           <div className="grid grid-cols-2 gap-3">
-            {FACE2_AREAS.filter((a) => a.tileView !== "pore").map((a) => {
+            {FACE2_AREAS.map((a, idx) => {
               const on = treated.includes(a.id);
-              return (
+              const tile = (
                 <button
                   key={a.id}
                   onClick={() => toggle(a.id)}
-                  className={`rounded-2xl border p-3 flex flex-col items-center transition-all ${
+                  className={`w-full rounded-2xl border p-3 flex flex-col items-center transition-all ${
                     on ? "bg-rose-50 border-rose-300 shadow-md shadow-rose-100" : "bg-white border-rose-100"
                   }`}
                 >
@@ -124,6 +123,7 @@ export default function App() {
                       {on ? "✨施術後" : "施術前"}
                     </span>
                     {a.tileView === "jaw" && <JawView treated={on} />}
+                    {a.tileView === "pore" && <PoreView treated={on} />}
                     {a.tileView === "smile" && <SmileView treated={on} />}
                   </div>
                   <div className="mt-2 text-sm font-bold text-slate-800 text-center leading-tight">
@@ -132,37 +132,16 @@ export default function App() {
                   <div className="mt-0.5 text-[11px] font-extrabold text-rose-500">{a.priceLabel}</div>
                 </button>
               );
+              // 3枚目（毛穴）は中央寄せで同じ大きさに
+              return idx === 2 ? (
+                <div key={a.id} className="col-span-2 flex justify-center">
+                  <div className="w-[calc(50%-0.375rem)]">{tile}</div>
+                </div>
+              ) : (
+                tile
+              );
             })}
           </div>
-          {/* 毛穴は横長1枚 */}
-          {FACE2_AREAS.filter((a) => a.tileView === "pore").map((a) => {
-            const on = treated.includes(a.id);
-            return (
-              <button
-                key={a.id}
-                onClick={() => toggle(a.id)}
-                className={`mt-3 w-full rounded-2xl border p-3 flex items-center gap-3 text-left transition-all ${
-                  on ? "bg-rose-50 border-rose-300 shadow-md shadow-rose-100" : "bg-white border-rose-100"
-                }`}
-              >
-                <div className="relative w-20 h-20 shrink-0 flex items-center justify-center">
-                  <span
-                    className={`absolute -top-1 -left-1 z-10 text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
-                      on ? "bg-rose-500 text-white" : "bg-slate-200 text-slate-500"
-                    }`}
-                  >
-                    {on ? "後" : "前"}
-                  </span>
-                  <PoreView treated={on} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-bold text-slate-800">{TILE_LABEL[a.id] ?? a.label}</div>
-                  <div className="text-xs text-slate-500">{a.catch}</div>
-                  <div className="mt-0.5 text-[11px] font-extrabold text-rose-500">{a.priceLabel}</div>
-                </div>
-              </button>
-            );
-          })}
           <SubtotalBar title="小顔・毛穴・口もと" areas={face2Treated} />
         </section>
 
