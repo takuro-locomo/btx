@@ -1,8 +1,10 @@
 /**
  * App.tsx — 患者向けボトックス体感ツール
  *
- * 目的: 患者が「気になる部位」を選び、ビフォー/アフターの変化を体感し、
- *       カウンセリング予約（行動喚起）につなげる。
+ * 仕様: デフォルトで全部位に悩み（シワ・たるみ等）が出ている状態。
+ *       気になる部位をタップすると、その悩みが消え（＝治療）、
+ *       タップした部位の合計料金と説明が表示される。
+ *       顔は2段（表情ジワ＋たるみ／エラ・毛穴・ガミー）。
  *
  * ※ 料金は上野医院の掲載価格に準拠した目安。最終判断は必ず医師の診察による。
  */
@@ -17,160 +19,110 @@ import {
   type WrinkleKey,
 } from "./data/patientAreas";
 
+const FACE1_AREAS = PATIENT_AREAS.filter((a) => a.section === "face1");
+const FACE2_AREAS = PATIENT_AREAS.filter((a) => a.section === "face2");
+const FACE1_KEYS = FACE1_AREAS.flatMap((a) => a.wrinkleKeys);
+const FACE2_KEYS = FACE2_AREAS.flatMap((a) => a.wrinkleKeys);
+
 export default function App() {
-  const [selected, setSelected] = useState<string[]>(["glabella"]);
-  const [effect, setEffect] = useState(0); // 0=施術前, 1=施術後
+  // タップ済み（＝治療する）部位のID
+  const [treated, setTreated] = useState<string[]>([]);
 
-  const selectedAreas: PatientArea[] = useMemo(
-    () => PATIENT_AREAS.filter((a) => selected.includes(a.id)),
-    [selected],
+  const treatedAreas: PatientArea[] = useMemo(
+    () => PATIENT_AREAS.filter((a) => treated.includes(a.id)),
+    [treated],
   );
 
-  const activeKeys: WrinkleKey[] = useMemo(
-    () => Array.from(new Set(selectedAreas.flatMap((a) => a.wrinkleKeys))),
-    [selectedAreas],
+  const treatedKeys: WrinkleKey[] = useMemo(
+    () => treatedAreas.flatMap((a) => a.wrinkleKeys),
+    [treatedAreas],
   );
 
-  // 選択部位の合計料金目安（平日／金土）
+  // 合計料金（平日／金土）
   const estimate = useMemo(() => {
     let weekday = 0;
     let weekend = 0;
-    let hasQuote = false; // 要相談（ネフェルティティ等）を含むか
-    for (const a of selectedAreas) {
-      if (a.priceValue == null) {
-        hasQuote = true;
-        continue;
-      }
+    for (const a of treatedAreas) {
+      if (a.priceValue == null) continue;
       weekday += a.priceValue;
       weekend += a.weekendValue ?? a.priceValue;
     }
-    return { weekday, weekend, hasQuote };
-  }, [selectedAreas]);
-
-  const yen = (n: number) => "¥" + n.toLocaleString("ja-JP");
+    return { weekday, weekend };
+  }, [treatedAreas]);
 
   const toggle = (id: string) => {
-    setSelected((prev) =>
+    setTreated((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
   };
 
-  const showAfter = effect > 0.5;
+  const yen = (n: number) => "¥" + n.toLocaleString("ja-JP");
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50 via-white to-rose-50 text-slate-800">
       {/* ヘッダー */}
-      <header className="px-5 pt-8 pb-4 text-center">
+      <header className="px-5 pt-8 pb-3 text-center">
         <p className="text-rose-500 text-xs font-bold tracking-widest">MEDICAL BEAUTY</p>
         <h1 className="mt-1 text-2xl sm:text-3xl font-extrabold text-slate-800 leading-snug">
-          そのシワ、<span className="text-rose-500">10分</span>で
+          気になるトコ、<span className="text-rose-500">タップ</span>で
           <br className="sm:hidden" />
-          変えられます
+          消してみて
         </h1>
         <p className="mt-2 text-sm text-slate-500">
-          気になる部位を選んで、変化をのぞいてみましょう
+          悩みをタップすると消えて、料金がわかります
         </p>
       </header>
 
       <main className="max-w-md mx-auto px-4 pb-28">
-        {/* 部位セレクター */}
-        <section aria-label="気になる部位">
-          <div className="flex flex-wrap gap-2 justify-center">
-            {PATIENT_AREAS.map((a) => {
-              const on = selected.includes(a.id);
-              return (
-                <button
-                  key={a.id}
-                  onClick={() => toggle(a.id)}
-                  className={`px-3.5 py-2 rounded-full text-sm font-bold border transition-all ${
-                    on
-                      ? "bg-rose-500 border-rose-500 text-white shadow-md shadow-rose-200 scale-105"
-                      : "bg-white border-rose-200 text-rose-500"
-                  }`}
-                >
-                  <span className="mr-1">{a.icon}</span>
-                  {a.label}
-                </button>
-              );
-            })}
-          </div>
-        </section>
+        {/* ===== 段1：表情ジワ＋フェイスライン ===== */}
+        <FaceSection
+          title="シワ・たるみ"
+          faceKeys={FACE1_KEYS}
+          treatedKeys={treatedKeys}
+          areas={FACE1_AREAS}
+          treated={treated}
+          onToggle={toggle}
+        />
 
-        {/* 顔ビュー */}
-        <section className="mt-5 relative rounded-3xl bg-white shadow-xl shadow-rose-100/70 border border-rose-100 overflow-hidden">
-          {/* ビフォー/アフター ラベル */}
-          <div className="absolute top-3 left-3 z-10">
-            <span
-              className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
-                showAfter
-                  ? "bg-rose-500 text-white"
-                  : "bg-slate-200 text-slate-500"
-              }`}
-            >
-              {showAfter ? "✨ 施術後" : "施術前"}
-            </span>
-          </div>
-
-          {selected.length === 0 ? (
-            <div className="aspect-[164/240] flex items-center justify-center text-center text-slate-400 text-sm px-8">
-              上のボタンから
-              <br />
-              気になる部位を選んでください
-            </div>
-          ) : (
-            <PatientFaceView activeKeys={activeKeys} effect={effect} />
-          )}
-        </section>
-
-        {/* ビフォーアフター スライダー */}
-        <section className="mt-4">
-          <div className="flex items-center justify-between text-xs font-bold text-slate-500 mb-1.5 px-1">
-            <span>施術前</span>
-            <span className="text-rose-500">スライドで変化 →</span>
-            <span>施術後</span>
-          </div>
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.01}
-            value={effect}
-            onChange={(e) => setEffect(Number(e.target.value))}
-            disabled={selected.length === 0}
-            className="w-full h-3 rounded-full appearance-none cursor-pointer bg-gradient-to-r from-slate-200 to-rose-300 accent-rose-500 disabled:opacity-40"
-            aria-label="施術前後スライダー"
+        {/* ===== 段2：エラ・毛穴・ガミースマイル ===== */}
+        <div className="mt-8">
+          <FaceSection
+            title="小顔・毛穴・口もと"
+            faceKeys={FACE2_KEYS}
+            treatedKeys={treatedKeys}
+            areas={FACE2_AREAS}
+            treated={treated}
+            onToggle={toggle}
           />
-          <div className="mt-3 flex gap-2">
-            <button
-              onClick={() => setEffect(0)}
-              className="flex-1 py-2 rounded-xl text-sm font-bold bg-slate-100 text-slate-500"
-            >
-              施術前
-            </button>
-            <button
-              onClick={() => setEffect(1)}
-              className="flex-1 py-2 rounded-xl text-sm font-bold bg-rose-500 text-white shadow-md shadow-rose-200"
-            >
-              施術後を見る ✨
-            </button>
-          </div>
-        </section>
+        </div>
 
-        {/* 選択部位の結果カード */}
-        {selectedAreas.length > 0 && (
+        {/* ===== 合計料金＋説明 ===== */}
+        {treatedAreas.length > 0 ? (
           <section className="mt-6 space-y-3">
-            {selectedAreas.map((a) => (
-              <div
-                key={a.id}
-                className="rounded-2xl bg-white border border-rose-100 shadow-sm p-4"
-              >
+            {/* 合計 */}
+            <div className="rounded-2xl bg-rose-500 text-white shadow-md shadow-rose-200 p-4">
+              <div className="text-xs font-bold text-rose-100">
+                選んだ {treatedAreas.length} 部位の料金目安（税込）
+              </div>
+              <div className="mt-1 flex items-end gap-2 flex-wrap">
+                <span className="text-3xl font-extrabold">{yen(estimate.weekday)}</span>
+                <span className="text-sm font-bold text-rose-100 mb-1">
+                  金土なら {yen(estimate.weekend)}
+                </span>
+              </div>
+              <div className="mt-1.5 text-[11px] text-rose-100 leading-relaxed">
+                ニューロノックス使用・自由診療。金土は表情ジワが割引（1部位 ¥11,000）。
+              </div>
+            </div>
+
+            {/* 各部位の説明 */}
+            {treatedAreas.map((a) => (
+              <div key={a.id} className="rounded-2xl bg-white border border-rose-100 shadow-sm p-4">
                 <div className="flex items-center gap-2">
                   <span className="text-xl">{a.icon}</span>
                   <h3 className="font-extrabold text-slate-800">{a.label}</h3>
                 </div>
-                <p className="mt-2 text-sm text-slate-600 leading-relaxed">
-                  {a.afterMessage}
-                </p>
+                <p className="mt-2 text-sm text-slate-600 leading-relaxed">{a.afterMessage}</p>
                 <div className="mt-3 rounded-xl bg-rose-50 px-3 py-2 flex items-center justify-between gap-2">
                   <span className="text-[11px] text-rose-400 font-bold shrink-0">料金</span>
                   <span className="text-sm font-extrabold text-rose-600 text-right">{a.priceLabel}</span>
@@ -178,24 +130,11 @@ export default function App() {
                 <div className="mt-1 text-[11px] text-slate-400 text-right">効果 {a.duration}持続</div>
               </div>
             ))}
-
-            {/* 合計料金の目安 */}
-            <div className="rounded-2xl bg-rose-500 text-white shadow-md shadow-rose-200 p-4">
-              <div className="text-xs font-bold text-rose-100">選んだ部位の料金目安（税込）</div>
-              <div className="mt-1 flex items-end gap-2 flex-wrap">
-                <span className="text-2xl font-extrabold">{yen(estimate.weekday)}</span>
-                <span className="text-sm font-bold text-rose-100 mb-0.5">
-                  金土なら {yen(estimate.weekend)}
-                </span>
-              </div>
-              {estimate.hasQuote && (
-                <div className="mt-1 text-[11px] text-rose-100">＋ ネフェルティティリフトは要カウンセリング</div>
-              )}
-              <div className="mt-1.5 text-[11px] text-rose-100 leading-relaxed">
-                ニューロノックス使用・自由診療。金土は表情ジワが割引（1部位 ¥11,000）。
-              </div>
-            </div>
           </section>
+        ) : (
+          <p className="mt-6 text-center text-sm text-slate-400">
+            👆 気になるところをタップすると、消えて料金が出ます
+          </p>
         )}
 
         {/* 安心ポイント */}
@@ -205,10 +144,7 @@ export default function App() {
           </h2>
           <div className="grid grid-cols-2 gap-3">
             {REASSURE_POINTS.map((r) => (
-              <div
-                key={r.title}
-                className="rounded-2xl bg-white/80 border border-rose-100 p-3.5"
-              >
+              <div key={r.title} className="rounded-2xl bg-white/80 border border-rose-100 p-3.5">
                 <div className="text-xl">{r.icon}</div>
                 <div className="mt-1 font-bold text-sm text-slate-800">{r.title}</div>
                 <div className="mt-0.5 text-xs text-slate-500 leading-relaxed">{r.body}</div>
@@ -220,14 +156,11 @@ export default function App() {
         {/* 人気メニュー */}
         <section className="mt-8">
           <h2 className="text-center text-sm font-bold text-slate-500 mb-3">
-            シワ以外の人気メニュー
+            そのほかの人気メニュー
           </h2>
           <div className="space-y-2">
             {POPULAR_MENUS.map((m) => (
-              <div
-                key={m.label}
-                className="flex items-center gap-3 rounded-xl bg-white border border-rose-100 px-4 py-3"
-              >
+              <div key={m.label} className="flex items-center gap-3 rounded-xl bg-white border border-rose-100 px-4 py-3">
                 <span className="text-lg shrink-0">{m.icon}</span>
                 <div className="min-w-0 flex-1">
                   <div className="font-bold text-sm text-slate-800">{m.label}</div>
@@ -268,5 +201,50 @@ export default function App() {
         </div>
       </div>
     </div>
+  );
+}
+
+/** 顔＋部位ボタン1段 */
+function FaceSection({
+  title,
+  faceKeys,
+  treatedKeys,
+  areas,
+  treated,
+  onToggle,
+}: {
+  title: string;
+  faceKeys: WrinkleKey[];
+  treatedKeys: WrinkleKey[];
+  areas: PatientArea[];
+  treated: string[];
+  onToggle: (id: string) => void;
+}) {
+  return (
+    <section>
+      <div className="text-center text-xs font-bold text-rose-400 mb-2">{title}</div>
+      <div className="rounded-3xl bg-white shadow-xl shadow-rose-100/70 border border-rose-100 overflow-hidden">
+        <PatientFaceView renderKeys={faceKeys} treatedKeys={treatedKeys} />
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2 justify-center">
+        {areas.map((a) => {
+          const on = treated.includes(a.id);
+          return (
+            <button
+              key={a.id}
+              onClick={() => onToggle(a.id)}
+              className={`px-3.5 py-2 rounded-full text-sm font-bold border transition-all ${
+                on
+                  ? "bg-rose-500 border-rose-500 text-white shadow-md shadow-rose-200"
+                  : "bg-white border-rose-200 text-rose-500"
+              }`}
+            >
+              <span className="mr-1">{on ? "✓" : a.icon}</span>
+              {a.label}
+            </button>
+          );
+        })}
+      </div>
+    </section>
   );
 }
