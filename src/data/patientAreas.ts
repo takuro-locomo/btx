@@ -129,20 +129,6 @@ export const PATIENT_AREAS: PatientArea[] = [
     category: "expression",
   },
   {
-    id: "pores",
-    label: "毛穴・テカリ（マイクロボトックス）",
-    catch: "毛穴・皮脂・テカリが気になる",
-    icon: "✨",
-    wrinkleKeys: ["pores"],
-    afterMessage:
-      "肌表面に極少量を注射し、毛穴の開き・テカリ・皮脂をおさえてサラッと陶器肌に。ハリ感もアップ。",
-    duration: "約3〜4ヶ月",
-    priceLabel: "全顔 ¥44,000 / 部分 ¥27,500〜",
-    priceValue: 44000,
-    weekendValue: null,
-    category: "micro",
-  },
-  {
     id: "gummy",
     label: "ガミースマイル",
     catch: "笑うと歯ぐきが見える",
@@ -181,10 +167,12 @@ export interface PopularMenu {
 }
 
 export const POPULAR_MENUS: PopularMenu[] = [
+  { icon: "✨", label: "毛穴・テカリ（マイクロボトックス）", benefit: "肌表面に極少量。毛穴の開き・テカリ・皮脂をおさえて陶器肌に", price: "全顔 ¥44,000 / 部分 ¥27,500〜" },
   { icon: "🦷", label: "エラ（小顔・歯ぎしり）", benefit: "エラの張りをやわらげてすっきり小顔に", price: "両エラ ¥52,800" },
   { icon: "💪", label: "肩こり・肩ボトックス", benefit: "こり固まった肩をゆるめて首をすらり", price: "カウンセリングにて" },
-  { icon: "💦", label: "ワキ多汗症", benefit: "気になるワキの汗を大幅に抑えて快適に", price: "両ワキ ¥66,000" },
-  { icon: "🧴", label: "頭皮ボトックス（制汗）", benefit: "頭皮の汗・ベタつきをおさえてサラサラに", price: "¥66,000" },
+  { icon: "💦", label: "多汗症・ワキ", benefit: "気になるワキの汗を大幅に抑えて快適に", price: "両ワキ ¥66,000" },
+  { icon: "🧴", label: "多汗症・頭皮", benefit: "頭皮の汗・ベタつきをおさえてサラサラに", price: "¥66,000" },
+  { icon: "🤲", label: "多汗症・手のひら", benefit: "手のひらの汗を抑えて、書類やスマホも快適に", price: "カウンセリングにて" },
 ];
 
 /** 安心して受けてもらうためのポイント */
