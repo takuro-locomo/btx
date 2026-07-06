@@ -24,10 +24,10 @@ export type WrinkleKey =
   | "bunny_lines"
   | "lower_lid_wrinkles"
   | "chin_lines"
-  | "sagging"
-  | "pores"
-  | "masseter"
-  | "gummy_hint";
+  | "sagging";
+
+/** 段2の専用ビフォーアフター図の種類 */
+export type TileView = "jaw" | "pore" | "smile";
 
 export type FaceSection = "face1" | "face2";
 
@@ -38,8 +38,10 @@ export interface PatientArea {
   icon: string;
   /** どちらの顔に表示するか */
   section: FaceSection;
-  /** 顔イラストに重ねる表現（タップで消える） */
+  /** 段1：顔イラストに重ねる表現（タップで消える） */
   wrinkleKeys: WrinkleKey[];
+  /** 段2：専用ビフォーアフター図の種類 */
+  tileView?: TileView;
   /** 治療後（タップ後）の説明 */
   afterMessage: string;
   duration: string;
@@ -161,7 +163,8 @@ export const PATIENT_AREAS: PatientArea[] = [
     catch: "顔が四角く見える",
     icon: "🦷",
     section: "face2",
-    wrinkleKeys: ["masseter"],
+    wrinkleKeys: [],
+    tileView: "jaw",
     afterMessage:
       "発達した咬筋（エラ）をゆるめて、3〜6ヶ月かけてフェイスラインをシャープに。歯ぎしり・食いしばりの緩和にも。",
     duration: "約4〜6ヶ月",
@@ -175,7 +178,8 @@ export const PATIENT_AREAS: PatientArea[] = [
     catch: "毛穴・皮脂・テカリが気になる",
     icon: "✨",
     section: "face2",
-    wrinkleKeys: ["pores"],
+    wrinkleKeys: [],
+    tileView: "pore",
     afterMessage:
       "肌表面に極少量を注射し、毛穴の開き・テカリ・皮脂をおさえてサラッと陶器肌に。ハリ感もアップ。",
     duration: "約3〜4ヶ月",
@@ -189,7 +193,8 @@ export const PATIENT_AREAS: PatientArea[] = [
     catch: "笑うと歯ぐきが見える",
     icon: "😁",
     section: "face2",
-    wrinkleKeys: ["gummy_hint"],
+    wrinkleKeys: [],
+    tileView: "smile",
     afterMessage:
       "上唇の筋肉をゆるめて、笑ったときの歯ぐきの見えすぎを自然に改善。当院は打ちすぎを防ぐ2ステップ法。",
     duration: "約3〜4ヶ月",

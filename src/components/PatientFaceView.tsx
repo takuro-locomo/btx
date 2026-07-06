@@ -15,9 +15,6 @@ import type { WrinkleKey } from "../data/patientAreas";
 
 const W = "#a9776b";
 const WS = "#8f5f54";
-const PORE = "#b48b7a";
-const MASS = "#c98a72";
-const GUM = "#df8a9c";
 
 const VB_X = 120, VB_Y = 56, VB_W = 164, VB_H = 240;
 
@@ -25,19 +22,9 @@ interface PathDef {
   d: string;
   w?: number;
   shadow?: boolean;
-  pore?: boolean;
   fill?: string;
   opacity?: number;
 }
-
-// 毛穴のドット（頬・鼻）。極短パス＋丸キャップで点として描画
-const PORE_DOTS = [
-  [146, 196], [154, 204], [149, 213], [160, 210], [156, 222], [165, 218],
-  [143, 205], [162, 199], [151, 228], [168, 226],
-  [252, 196], [244, 204], [249, 213], [238, 210], [242, 222], [233, 218],
-  [255, 205], [236, 199], [247, 228], [230, 226],
-  [196, 202], [204, 205], [200, 212], [193, 210], [207, 211],
-] as const;
 
 const WRINKLE_PATHS: Record<WrinkleKey, PathDef[]> = {
   horizontal_forehead: [
@@ -79,17 +66,6 @@ const WRINKLE_PATHS: Record<WrinkleKey, PathDef[]> = {
     { d: "M 149 224 Q 155 248 178 262", w: 3.4, shadow: true, opacity: 0.35 },
     { d: "M 251 224 Q 245 248 222 262", w: 3.4, shadow: true, opacity: 0.35 },
     { d: "M 176 266 Q 200 278 224 266", w: 2.6, shadow: true, opacity: 0.28 },
-  ],
-  // 毛穴
-  pores: PORE_DOTS.map(([x, y]) => ({ d: `M ${x} ${y} l 0.1 0`, w: 1.8, pore: true })),
-  // エラ張り（咬筋・下顎角のふくらみ／両側のシェード）
-  masseter: [
-    { d: "M 136 238 a 17 21 0 1 0 34 0 a 17 21 0 1 0 -34 0 Z", fill: MASS, opacity: 0.24 },
-    { d: "M 230 238 a 17 21 0 1 0 34 0 a 17 21 0 1 0 -34 0 Z", fill: MASS, opacity: 0.24 },
-  ],
-  // ガミースマイル（上唇上の歯ぐきヒント）
-  gummy_hint: [
-    { d: "M 185 217 Q 200 210 215 217 Q 200 221 185 217 Z", fill: GUM, opacity: 0.55 },
   ],
 };
 
@@ -135,9 +111,9 @@ export function PatientFaceView({ renderKeys, treatedKeys }: Props) {
               <path
                 key={i}
                 d={p.d}
-                stroke={p.pore ? PORE : p.shadow ? WS : W}
+                stroke={p.shadow ? WS : W}
                 strokeWidth={p.w}
-                opacity={p.opacity ?? (p.pore ? 0.5 : p.shadow ? 0.5 : 0.75)}
+                opacity={p.opacity ?? (p.shadow ? 0.5 : 0.75)}
               />
             ),
           )}
