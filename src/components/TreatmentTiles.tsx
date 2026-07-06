@@ -1,42 +1,55 @@
 /**
  * TreatmentTiles — 段2（エラ・毛穴・ガミースマイル）の専用ビフォーアフター図
  *
- * 写真ベースでは表現しにくい「輪郭のV字化」「歯ぐきの見え方」「毛穴」を、
- * 自作SVGのビフォー/アフターでタップ切替表示する。
+ * 写真では表現しにくい変化を、自作SVGのビフォー/アフターでタップ切替表示する。
  * treated=false → 施術前（悩みあり） / treated=true → 施術後（改善）
+ *
+ * 参考: wrinkle-era.webp（エラ張り四角顔→V字小顔）
  */
 
 const T = { transition: "opacity 0.5s ease" } as const;
 
-/** エラ張り → 小顔（四角い輪郭 → V字） */
+/** エラ張り → 小顔（四角い輪郭 → V字）。参考画像に寄せた全顔イラスト */
 export function JawView({ treated }: { treated: boolean }) {
+  // 施術前：エラが張った四角い輪郭
   const BEFORE =
-    "M 70 20 C 100 20 118 40 120 66 C 121 88 121 106 113 120 C 108 130 100 137 90 141 C 82 144 76 145 70 145 C 64 145 58 144 50 141 C 40 137 32 130 27 120 C 19 106 19 88 20 66 C 22 40 40 20 70 20 Z";
+    "M 80 32 C 108 32 126 50 128 82 C 129 104 129 122 120 138 C 112 150 99 157 80 160 C 61 157 48 150 40 138 C 31 122 31 104 32 82 C 34 50 52 32 80 32 Z";
+  // 施術後：すっきりしたV字
   const AFTER =
-    "M 70 22 C 96 22 111 40 113 64 C 114 82 110 99 100 115 C 92 128 82 138 70 143 C 58 138 48 128 40 115 C 30 99 26 82 27 64 C 29 40 44 22 70 22 Z";
+    "M 80 34 C 106 34 121 50 123 80 C 124 100 119 118 109 134 C 100 147 90 155 80 159 C 70 155 60 147 51 134 C 41 118 36 100 37 80 C 39 50 54 34 80 34 Z";
   return (
-    <svg viewBox="0 0 140 160" className="w-full h-full">
-      {/* 髪（後ろ） */}
-      <path d="M 26 66 C 22 32 44 12 70 12 C 96 12 118 32 114 66 C 106 46 92 34 70 34 C 48 34 34 46 26 66 Z" fill="#7c5c40" />
+    <svg viewBox="0 0 160 170" className="w-full h-full">
+      {/* 髪（後ろ・ボブ） */}
+      <path
+        d="M 20 98 C 14 50 46 20 80 20 C 114 20 146 50 140 98 C 138 130 130 158 122 172 C 125 132 126 96 124 80 C 122 52 106 40 80 40 C 54 40 38 52 36 80 C 34 96 35 132 38 172 C 30 158 22 130 20 98 Z"
+        fill="#a98a6e"
+      />
       {/* 輪郭（クロスフェード） */}
-      <path d={BEFORE} fill="#f7ddc8" stroke="#e3b389" strokeWidth="2" opacity={treated ? 0 : 1} style={T} />
-      <path d={AFTER} fill="#f7ddc8" stroke="#e3b389" strokeWidth="2" opacity={treated ? 1 : 0} style={T} />
+      <path d={BEFORE} fill="#fbe4d3" stroke="#e6b591" strokeWidth="2" opacity={treated ? 0 : 1} style={T} />
+      <path d={AFTER} fill="#fbe4d3" stroke="#e6b591" strokeWidth="2" opacity={treated ? 1 : 0} style={T} />
       {/* エラの張り（施術前だけ影） */}
       <g opacity={treated ? 0 : 1} style={T}>
-        <path d="M 26 106 Q 30 124 46 137" fill="none" stroke="#d99a72" strokeWidth="3.5" strokeLinecap="round" opacity="0.4" />
-        <path d="M 114 106 Q 110 124 94 137" fill="none" stroke="#d99a72" strokeWidth="3.5" strokeLinecap="round" opacity="0.4" />
+        <path d="M 34 116 Q 40 138 55 150" fill="none" stroke="#d99a72" strokeWidth="4.5" strokeLinecap="round" opacity="0.35" />
+        <path d="M 126 116 Q 120 138 105 150" fill="none" stroke="#d99a72" strokeWidth="4.5" strokeLinecap="round" opacity="0.35" />
       </g>
       {/* Vライン（施術後だけハイライト） */}
       <g opacity={treated ? 1 : 0} style={T}>
-        <path d="M 40 115 Q 55 135 70 141 Q 85 135 100 115" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" opacity="0.7" />
+        <path d="M 51 134 Q 65 152 80 159 Q 95 152 109 134" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" opacity="0.75" />
       </g>
-      {/* パーツ */}
-      <path d="M 45 76 Q 53 72 61 76" stroke="#6b4a34" strokeWidth="2.4" fill="none" strokeLinecap="round" />
-      <path d="M 79 76 Q 87 72 95 76" stroke="#6b4a34" strokeWidth="2.4" fill="none" strokeLinecap="round" />
-      <path d="M 66 88 Q 64 96 70 99" stroke="#e0a074" strokeWidth="1.6" fill="none" strokeLinecap="round" />
-      <path d="M 60 110 Q 70 116 80 110" stroke="#d07a86" strokeWidth="2.4" fill="none" strokeLinecap="round" />
+      {/* チーク */}
+      <ellipse cx="53" cy="104" rx="11" ry="7" fill="#f6a6a6" opacity="0.35" />
+      <ellipse cx="107" cy="104" rx="11" ry="7" fill="#f6a6a6" opacity="0.35" />
+      {/* 眉 */}
+      <path d="M 49 71 Q 61 66 72 70" stroke="#8a6a4e" strokeWidth="2.4" fill="none" strokeLinecap="round" />
+      <path d="M 88 70 Q 99 66 111 71" stroke="#8a6a4e" strokeWidth="2.4" fill="none" strokeLinecap="round" />
+      {/* 目（やさしい） */}
+      <path d="M 52 84 Q 61 90 70 84" stroke="#5a3d28" strokeWidth="2.6" fill="none" strokeLinecap="round" />
+      <path d="M 90 84 Q 99 90 108 84" stroke="#5a3d28" strokeWidth="2.6" fill="none" strokeLinecap="round" />
+      {/* 鼻・口 */}
+      <path d="M 78 96 Q 76 105 81 108" stroke="#e0a074" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+      <path d="M 70 124 Q 80 130 90 124" stroke="#d07a86" strokeWidth="2.6" fill="none" strokeLinecap="round" />
       {/* 前髪 */}
-      <path d="M 28 64 C 30 42 48 28 70 28 C 92 28 110 42 112 64 C 100 50 88 42 70 42 C 52 42 40 50 28 64 Z" fill="#9a765a" />
+      <path d="M 80 28 C 55 28 37 43 33 74 C 40 53 56 41 80 41 C 104 41 120 53 127 74 C 123 43 105 28 80 28 Z" fill="#c0a084" />
     </svg>
   );
 }
@@ -52,19 +65,16 @@ export function PoreView({ treated }: { treated: boolean }) {
     <svg viewBox="0 0 140 140" className="w-full h-full">
       <defs>
         <radialGradient id="poreGlow" cx="45%" cy="38%" r="60%">
-          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.85" />
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.9" />
           <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
         </radialGradient>
       </defs>
-      {/* 肌 */}
-      <circle cx="70" cy="72" r="56" fill="#f7ddc8" stroke="#eec6a6" strokeWidth="2" />
-      {/* 毛穴（施術前） */}
+      <circle cx="70" cy="72" r="56" fill="#fbe4d3" stroke="#eec6a6" strokeWidth="2" />
       <g opacity={treated ? 0 : 1} style={T}>
         {dots.map(([x, y], i) => (
-          <circle key={i} cx={x} cy={y} r="2.4" fill="#c69a86" opacity="0.55" />
+          <circle key={i} cx={x} cy={y} r="2.6" fill="#c69a86" opacity="0.6" />
         ))}
       </g>
-      {/* ツヤ（施術後） */}
       <circle cx="70" cy="72" r="56" fill="url(#poreGlow)" opacity={treated ? 1 : 0} style={T} />
     </svg>
   );
@@ -73,27 +83,33 @@ export function PoreView({ treated }: { treated: boolean }) {
 /** ガミースマイル（歯ぐきが見える → 見えない） */
 export function SmileView({ treated }: { treated: boolean }) {
   return (
-    <svg viewBox="0 0 170 120" className="w-full h-full">
-      {/* 施術前：ガミー（歯ぐきが見える） */}
+    <svg viewBox="0 0 170 130" className="w-full h-full">
+      {/* 施術前：ガミー（歯ぐきが大きく見える） */}
       <g opacity={treated ? 0 : 1} style={T}>
-        <path d="M 28 44 Q 85 26 142 44 Q 122 100 85 102 Q 48 100 28 44 Z" fill="#7a3b42" />
-        <path d="M 40 44 Q 85 36 130 44 L 127 60 Q 85 54 43 60 Z" fill="#e58a97" />
-        <path d="M 44 58 Q 85 52 126 58 L 120 80 Q 85 90 50 80 Z" fill="#ffffff" />
-        <path d="M 26 42 Q 85 22 144 42 Q 128 48 85 44 Q 42 48 26 42 Z" fill="#d76b78" />
-        <path d="M 30 80 Q 85 108 140 80 Q 116 100 85 102 Q 54 100 30 80 Z" fill="#e07f8b" />
+        {/* 口内 */}
+        <path d="M 26 46 Q 85 26 144 46 Q 122 108 85 110 Q 48 108 26 46 Z" fill="#7a333c" />
+        {/* 歯ぐき（大きめ） */}
+        <path d="M 38 46 Q 85 37 132 46 L 129 66 Q 85 59 41 66 Z" fill="#ef8ea0" />
+        {/* 歯 */}
+        <path d="M 44 63 Q 85 56 126 63 L 120 88 Q 85 100 50 88 Z" fill="#ffffff" />
+        {/* 上唇（細く高い） */}
+        <path d="M 24 44 Q 85 22 146 44 Q 128 51 85 47 Q 42 51 24 44 Z" fill="#d76b78" />
+        {/* 下唇 */}
+        <path d="M 28 88 Q 85 118 142 88 Q 116 108 85 110 Q 54 108 28 88 Z" fill="#e07f8b" />
       </g>
       {/* 施術後：自然な笑顔（歯ぐきが見えない） */}
       <g opacity={treated ? 1 : 0} style={T}>
-        <path d="M 32 54 Q 85 36 138 54 Q 120 96 85 98 Q 50 96 32 54 Z" fill="#7a3b42" />
-        <path d="M 44 56 Q 85 51 126 56 L 120 78 Q 85 88 50 78 Z" fill="#ffffff" />
-        <path d="M 28 52 Q 85 30 142 52 Q 126 64 85 60 Q 44 64 28 52 Z" fill="#d76b78" />
-        <path d="M 32 78 Q 85 104 138 78 Q 114 98 85 100 Q 56 98 32 78 Z" fill="#e07f8b" />
+        <path d="M 30 56 Q 85 38 140 56 Q 120 102 85 104 Q 50 102 30 56 Z" fill="#7a333c" />
+        <path d="M 44 58 Q 85 52 126 58 L 120 84 Q 85 96 50 84 Z" fill="#ffffff" />
+        {/* 上唇（ふっくら・下げて歯ぐきを隠す） */}
+        <path d="M 26 54 Q 85 30 144 54 Q 126 68 85 63 Q 44 68 26 54 Z" fill="#d76b78" />
+        <path d="M 30 84 Q 85 114 140 84 Q 114 104 85 106 Q 56 104 30 84 Z" fill="#e07f8b" />
       </g>
-      {/* 歯の境目（うっすら） */}
-      <g stroke="#e7d9d0" strokeWidth="1" opacity="0.5">
-        <line x1="70" y1="58" x2="70" y2="82" />
-        <line x1="85" y1="58" x2="85" y2="84" />
-        <line x1="100" y1="58" x2="100" y2="82" />
+      {/* 歯の境目 */}
+      <g stroke="#e7d9d0" strokeWidth="1.1" opacity="0.5">
+        <line x1="70" y1="64" x2="70" y2="90" />
+        <line x1="85" y1="64" x2="85" y2="92" />
+        <line x1="100" y1="64" x2="100" y2="90" />
       </g>
     </svg>
   );
