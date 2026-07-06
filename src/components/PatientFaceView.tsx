@@ -69,14 +69,52 @@ const WRINKLE_PATHS: Record<WrinkleKey, PathDef[]> = {
   ],
 };
 
+interface Rect { x: number; y: number; w: number; h: number; }
+
+/** 顔上のタップ領域（実際のしわの位置） */
+const HIT_BY_KEY: Record<WrinkleKey, Rect[]> = {
+  horizontal_forehead: [{ x: 152, y: 88, w: 96, h: 42 }],
+  glabellar_lines: [{ x: 184, y: 130, w: 32, h: 34 }],
+  crows_feet: [
+    { x: 128, y: 146, w: 32, h: 42 },
+    { x: 240, y: 146, w: 32, h: 42 },
+  ],
+  lower_lid_wrinkles: [
+    { x: 150, y: 170, w: 46, h: 22 },
+    { x: 210, y: 170, w: 46, h: 22 },
+  ],
+  bunny_lines: [{ x: 184, y: 174, w: 32, h: 28 }],
+  chin_lines: [{ x: 180, y: 246, w: 40, h: 30 }],
+  sagging: [
+    { x: 138, y: 214, w: 42, h: 54 },
+    { x: 220, y: 214, w: 42, h: 54 },
+  ],
+};
+
+interface HitArea {
+  id: string;
+  keys: WrinkleKey[];
+}
+
 interface Props {
   renderKeys: WrinkleKey[];
   treatedKeys: WrinkleKey[];
+  /** 顔を直接タップして治療できるようにする（段1） */
+  hitAreas?: HitArea[];
+  treatedIds?: string[];
+  onToggleArea?: (id: string) => void;
 }
 
-export function PatientFaceView({ renderKeys, treatedKeys }: Props) {
+export function PatientFaceView({
+  renderKeys,
+  treatedKeys,
+  hitAreas,
+  treatedIds = [],
+  onToggleArea,
+}: Props) {
   const gid = useId();
   const treated = new Set(treatedKeys);
+  const treatedIdSet = new Set(treatedIds);
   const treatedCount = renderKeys.filter((k) => treated.has(k)).length;
   const glow = renderKeys.length ? treatedCount / renderKeys.length : 0;
 
@@ -121,6 +159,34 @@ export function PatientFaceView({ renderKeys, treatedKeys }: Props) {
       ))}
 
       <rect x="0" y="0" width="398" height="400" fill={`url(#${gid})`} pointerEvents="none" />
+
+      {/* 顔の各しわ位置をタップして治療 */}
+      {hitAreas?.map((area) => {
+        const done = treatedIdSet.has(area.id);
+        const rects = area.keys.flatMap((k) => HIT_BY_KEY[k]);
+        return (
+          <g key={area.id} onClick={() => onToggleArea?.(area.id)} style={{ cursor: "pointer" }}>
+            {rects.map((r, i) => (
+              <g key={i}>
+                {/* タップ領域（透明） */}
+                <rect x={r.x} y={r.y} width={r.w} height={r.h} fill="transparent" />
+                {/* 未治療の目印（ふわっと点滅） */}
+                {!done && (
+                  <circle
+                    className="animate-pulse"
+                    cx={r.x + r.w / 2}
+                    cy={r.y + r.h / 2}
+                    r="7"
+                    fill="#f43f5e"
+                    opacity="0.35"
+                    pointerEvents="none"
+                  />
+                )}
+              </g>
+            ))}
+          </g>
+        );
+      })}
     </svg>
   );
 }

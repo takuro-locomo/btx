@@ -81,9 +81,18 @@ export default function App() {
         <section>
           <div className="text-center text-xs font-bold text-rose-400 mb-2">シワ・たるみ</div>
           <div className="rounded-3xl bg-white shadow-xl shadow-rose-100/70 border border-rose-100 overflow-hidden">
-            <PatientFaceView renderKeys={FACE1_KEYS} treatedKeys={treatedKeys} />
+            <PatientFaceView
+              renderKeys={FACE1_KEYS}
+              treatedKeys={treatedKeys}
+              hitAreas={FACE1_AREAS.map((a) => ({ id: a.id, keys: a.wrinkleKeys }))}
+              treatedIds={treated}
+              onToggleArea={toggle}
+            />
           </div>
-          <div className="mt-3 flex flex-wrap gap-2 justify-center">
+          <p className="mt-1 text-center text-[11px] text-slate-400">
+            気になる部分（<span className="text-rose-400 font-bold">●</span>）を直接タップしてもOK
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2 justify-center">
             {FACE1_AREAS.map((a) => (
               <Pill key={a.id} area={a} on={treated.includes(a.id)} onClick={() => toggle(a.id)} />
             ))}
