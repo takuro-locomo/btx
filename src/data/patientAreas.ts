@@ -208,10 +208,10 @@ export interface PopularMenu {
 }
 
 export const POPULAR_MENUS: PopularMenu[] = [
-  { icon: "💪", label: "肩こり・肩ボトックス", benefit: "こり固まった肩をゆるめて首をすらり", price: "カウンセリングにて" },
-  { icon: "💦", label: "多汗症・ワキ", benefit: "気になるワキの汗を大幅に抑えて快適に", price: "両ワキ ¥66,000" },
+  { icon: "💪", label: "肩こり・肩ボトックス", benefit: "こり固まった肩をゆるめて首をすらり", price: "¥66,000" },
+  { icon: "💦", label: "多汗症・ワキ", benefit: "気になるワキの汗を大幅に抑えて快適に", price: "¥66,000" },
   { icon: "🧴", label: "多汗症・頭皮", benefit: "頭皮の汗・ベタつきをおさえてサラサラに", price: "¥66,000" },
-  { icon: "🤲", label: "多汗症・手のひら", benefit: "手のひらの汗を抑えて、書類やスマホも快適に", price: "カウンセリングにて" },
+  { icon: "🤲", label: "多汗症・手のひら", benefit: "手のひらの汗を抑えて、書類やスマホも快適に", price: "¥66,000" },
 ];
 
 /** 安心して受けてもらうためのポイント */

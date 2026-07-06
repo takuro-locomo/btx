@@ -102,7 +102,7 @@ export default function App() {
             {/* 合計 */}
             <div className="rounded-2xl bg-rose-500 text-white shadow-md shadow-rose-200 p-4">
               <div className="text-xs font-bold text-rose-100">
-                選んだ {treatedAreas.length} 部位の料金目安（税込）
+                全体の合計（{treatedAreas.length}部位・税込）
               </div>
               <div className="mt-1 flex items-end gap-2 flex-wrap">
                 <span className="text-3xl font-extrabold">{yen(estimate.weekday)}</span>
@@ -220,6 +220,16 @@ function FaceSection({
   treated: string[];
   onToggle: (id: string) => void;
 }) {
+  const yen = (n: number) => "¥" + n.toLocaleString("ja-JP");
+  const chosen = areas.filter((a) => treated.includes(a.id));
+  let weekday = 0;
+  let weekend = 0;
+  for (const a of chosen) {
+    if (a.priceValue == null) continue;
+    weekday += a.priceValue;
+    weekend += a.weekendValue ?? a.priceValue;
+  }
+
   return (
     <section>
       <div className="text-center text-xs font-bold text-rose-400 mb-2">{title}</div>
@@ -245,6 +255,19 @@ function FaceSection({
           );
         })}
       </div>
+
+      {/* この段の小計 */}
+      {chosen.length > 0 && (
+        <div className="mt-3 rounded-2xl bg-rose-500 text-white px-4 py-2.5 flex items-center justify-between gap-2 shadow-md shadow-rose-200">
+          <span className="text-xs font-bold text-rose-100 shrink-0">
+            {title}の合計（{chosen.length}部位）
+          </span>
+          <span className="text-right leading-tight">
+            <span className="text-lg font-extrabold">{yen(weekday)}</span>
+            <span className="text-[11px] text-rose-100 ml-1">金土 {yen(weekend)}</span>
+          </span>
+        </div>
+      )}
     </section>
   );
 }
