@@ -230,16 +230,20 @@ export default function App() {
       <div className="fixed bottom-0 inset-x-0 z-20 bg-white/90 backdrop-blur border-t border-rose-100 px-4 py-3">
         <div className="max-w-md mx-auto flex gap-2">
           <a
-            href="#reserve"
-            className="flex-1 text-center py-3.5 rounded-2xl bg-rose-500 text-white font-extrabold shadow-lg shadow-rose-200 active:scale-95 transition-transform"
+            href="https://lin.ee/zNl8pfQ"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 text-center py-3.5 rounded-2xl bg-[#06C755] text-white font-extrabold shadow-lg shadow-emerald-100 active:scale-95 transition-transform"
           >
-            無料カウンセリングを予約
+            💬 無料LINE相談
           </a>
           <a
-            href="#line"
-            className="px-5 py-3.5 rounded-2xl bg-[#06C755] text-white font-bold active:scale-95 transition-transform"
+            href="https://ueno-iin-biyou-miwa.com/siwa/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 text-center py-3.5 rounded-2xl bg-white border-2 border-rose-400 text-rose-500 font-extrabold active:scale-95 transition-transform"
           >
-            LINE相談
+            HPで詳細を見る
           </a>
         </div>
       </div>

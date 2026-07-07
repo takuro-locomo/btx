@@ -7,3 +7,9 @@ body,
 #root {
   height: 100%;
 }
+
+/* スマホ: ダブルタップズームによる操作遅延・誤ズームを防ぐ */
+body {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
