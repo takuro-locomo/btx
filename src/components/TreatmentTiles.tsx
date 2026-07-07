@@ -1,14 +1,46 @@
 /**
  * TreatmentTiles — 段2（エラ・毛穴・ガミースマイル）の専用ビフォーアフター図
  *
- * ユーザー提供のイラスト素材（public/tiles/）を使用。
- * 各素材は「施術前｜施術後」が横並びになっているので、
- * SVG の viewBox で片側だけを切り出して表示し、タップで前後をクロスフェード。
+ * ユーザー提供のイラスト素材（public/tiles/）を使用。タップで施術前/後をクロスフェード。
  *
- *   jaw-ba.webp  (519×370) … 左=エラ張り＋注射 / 右=すっきり小顔
- *   pore-ba.jpg  (1000×600)… 左=毛穴悩み / 右=つや肌
- *   gummy-ba.jpg (481×340) … 左=自然な笑顔(後) / 右=歯ぐきが見える(前)
+ *   jaw-before/after.jpg  (720×900) … エラ張り → V字小顔（前後別ファイル）
+ *   pore-before/after.jpg (720×900) … 毛穴悩み → つや肌（前後別ファイル）
+ *   gummy-ba.jpg (481×340) … 左=施術後 / 右=施術前 が横並びの1枚もの
  */
+
+const FADE = { transition: "opacity 0.5s ease" } as const;
+
+/** 前後別ファイルをクロスフェード */
+function FadeImagePair({
+  beforeSrc,
+  afterSrc,
+  treated,
+  alt,
+}: {
+  beforeSrc: string;
+  afterSrc: string;
+  treated: boolean;
+  alt: string;
+}) {
+  return (
+    <div className="relative w-full h-full" role="img" aria-label={alt}>
+      <img
+        src={beforeSrc}
+        alt=""
+        className="absolute inset-0 w-full h-full object-contain"
+        style={{ ...FADE, opacity: treated ? 0 : 1 }}
+        loading="lazy"
+      />
+      <img
+        src={afterSrc}
+        alt=""
+        className="absolute inset-0 w-full h-full object-contain"
+        style={{ ...FADE, opacity: treated ? 1 : 0 }}
+        loading="lazy"
+      />
+    </div>
+  );
+}
 
 interface Crop {
   x: number;
@@ -17,17 +49,7 @@ interface Crop {
   h: number;
 }
 
-interface BAImageProps {
-  src: string;
-  /** 素材画像の実寸 */
-  imgW: number;
-  imgH: number;
-  before: Crop;
-  after: Crop;
-  treated: boolean;
-  alt: string;
-}
-
+/** 1枚ものの素材から指定範囲だけを表示 */
 function CropView({
   src,
   imgW,
@@ -46,7 +68,7 @@ function CropView({
       viewBox={`${crop.x} ${crop.y} ${crop.w} ${crop.h}`}
       preserveAspectRatio="xMidYMid meet"
       className="absolute inset-0 w-full h-full"
-      style={{ opacity: visible ? 1 : 0, transition: "opacity 0.5s ease" }}
+      style={{ ...FADE, opacity: visible ? 1 : 0 }}
       aria-hidden={!visible}
     >
       <image href={src} x="0" y="0" width={imgW} height={imgH} />
@@ -54,24 +76,12 @@ function CropView({
   );
 }
 
-function BeforeAfterImage({ src, imgW, imgH, before, after, treated, alt }: BAImageProps) {
-  return (
-    <div className="relative w-full h-full" role="img" aria-label={alt}>
-      <CropView src={src} imgW={imgW} imgH={imgH} crop={before} visible={!treated} />
-      <CropView src={src} imgW={imgW} imgH={imgH} crop={after} visible={treated} />
-    </div>
-  );
-}
-
 /** エラ張り → 小顔 */
 export function JawView({ treated }: { treated: boolean }) {
   return (
-    <BeforeAfterImage
-      src="/tiles/jaw-ba.webp"
-      imgW={519}
-      imgH={370}
-      before={{ x: 5, y: 0, w: 225, h: 370 }}
-      after={{ x: 288, y: 0, w: 225, h: 370 }}
+    <FadeImagePair
+      beforeSrc="/tiles/jaw-before.jpg"
+      afterSrc="/tiles/jaw-after.jpg"
       treated={treated}
       alt="エラボトックスの施術前後イメージ"
     />
@@ -81,12 +91,9 @@ export function JawView({ treated }: { treated: boolean }) {
 /** 毛穴・テカリ → つるん肌 */
 export function PoreView({ treated }: { treated: boolean }) {
   return (
-    <BeforeAfterImage
-      src="/tiles/pore-ba.jpg"
-      imgW={1000}
-      imgH={600}
-      before={{ x: 30, y: 0, w: 470, h: 600 }}
-      after={{ x: 505, y: 0, w: 470, h: 600 }}
+    <FadeImagePair
+      beforeSrc="/tiles/pore-before.jpg"
+      afterSrc="/tiles/pore-after.jpg"
       treated={treated}
       alt="マイクロボトックス（毛穴）の施術前後イメージ"
     />
@@ -96,14 +103,25 @@ export function PoreView({ treated }: { treated: boolean }) {
 /** ガミースマイル（素材は 左=施術後 / 右=施術前） */
 export function SmileView({ treated }: { treated: boolean }) {
   return (
-    <BeforeAfterImage
-      src="/tiles/gummy-ba.jpg"
-      imgW={481}
-      imgH={340}
-      before={{ x: 243, y: 75, w: 235, h: 200 }}
-      after={{ x: 5, y: 90, w: 235, h: 200 }}
-      treated={treated}
-      alt="ガミースマイルの施術前後イメージ"
-    />
+    <div
+      className="relative w-full h-full"
+      role="img"
+      aria-label="ガミースマイルの施術前後イメージ"
+    >
+      <CropView
+        src="/tiles/gummy-ba.jpg"
+        imgW={481}
+        imgH={340}
+        crop={{ x: 243, y: 75, w: 235, h: 200 }}
+        visible={!treated}
+      />
+      <CropView
+        src="/tiles/gummy-ba.jpg"
+        imgW={481}
+        imgH={340}
+        crop={{ x: 5, y: 90, w: 235, h: 200 }}
+        visible={treated}
+      />
+    </div>
   );
 }
