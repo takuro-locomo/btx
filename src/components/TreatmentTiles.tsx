@@ -76,15 +76,33 @@ function CropView({
   );
 }
 
-/** エラ張り → 小顔 */
+/**
+ * エラ張り → 小顔
+ * フェイスラインの変化が伝わるよう顔をズーム表示。
+ * 前後で顔の位置・大きさが揃うようクロップは画像ごとに調整済み。
+ */
 export function JawView({ treated }: { treated: boolean }) {
   return (
-    <FadeImagePair
-      beforeSrc="/tiles/jaw-before.jpg"
-      afterSrc="/tiles/jaw-after.jpg"
-      treated={treated}
-      alt="エラボトックスの施術前後イメージ"
-    />
+    <div
+      className="relative w-full h-full"
+      role="img"
+      aria-label="エラボトックスの施術前後イメージ"
+    >
+      <CropView
+        src="/tiles/jaw-before.jpg"
+        imgW={720}
+        imgH={900}
+        crop={{ x: 147, y: 270, w: 424, h: 404 }}
+        visible={!treated}
+      />
+      <CropView
+        src="/tiles/jaw-after.jpg"
+        imgW={720}
+        imgH={900}
+        crop={{ x: 148, y: 278, w: 438, h: 417 }}
+        visible={treated}
+      />
+    </div>
   );
 }
 
