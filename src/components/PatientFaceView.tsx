@@ -11,6 +11,7 @@
  */
 
 import { useId } from "react";
+import type { MouseEvent } from "react";
 import type { WrinkleKey } from "../data/patientAreas";
 
 const W = "#a9776b";
@@ -109,7 +110,7 @@ interface Props {
   /** 顔を直接タップして治療できるようにする（段1） */
   hitAreas?: HitArea[];
   treatedIds?: string[];
-  onToggleArea?: (id: string) => void;
+  onToggleArea?: (id: string, e?: MouseEvent) => void;
 }
 
 export function PatientFaceView({
@@ -184,7 +185,7 @@ export function PatientFaceView({
         const done = treatedIdSet.has(area.id);
         const rects = area.keys.flatMap((k) => HIT_BY_KEY[k]);
         return (
-          <g key={area.id} onClick={() => onToggleArea?.(area.id)} style={{ cursor: "pointer" }}>
+          <g key={area.id} onClick={(e) => onToggleArea?.(area.id, e)} style={{ cursor: "pointer" }}>
             {rects.map((r, i) => (
               <g key={i}>
                 {/* タップ領域（透明） */}

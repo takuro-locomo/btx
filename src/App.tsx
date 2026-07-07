@@ -9,9 +9,11 @@
  * ※ 料金は上野医院の掲載価格に準拠した目安。最終判断は必ず医師の診察による。
  */
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { MouseEvent } from "react";
 import { PatientFaceView } from "./components/PatientFaceView";
 import { JawView, PoreView, SmileView } from "./components/TreatmentTiles";
+import { BurstLayer, ConfettiRain, type Burst } from "./components/FunEffects";
 import {
   PATIENT_AREAS,
   POPULAR_MENUS,
@@ -44,9 +46,22 @@ function priceOf(areas: PatientArea[]) {
   return { weekday, weekend };
 }
 
+/** キレイ度に応じた顔絵文字と応援メッセージ */
+function kireiStage(pct: number): { emoji: string; message: string } {
+  if (pct === 0) return { emoji: "😣", message: "気になるところをポチッと押してみて👇" };
+  if (pct < 30) return { emoji: "🙂", message: "いい感じ！どんどん消しちゃおう" };
+  if (pct < 60) return { emoji: "😊", message: "半分くらいきた！その調子✨" };
+  if (pct < 100) return { emoji: "😍", message: "あとすこしでコンプリート…！" };
+  return { emoji: "👑", message: "ぜんぶキレイ！おつかれさま🎉" };
+}
+
 export default function App() {
   // タップ済み（＝治療する）部位のID
   const [treated, setTreated] = useState<string[]>([]);
+  // タップ演出
+  const [bursts, setBursts] = useState<Burst[]>([]);
+  const burstId = useRef(0);
+  const [celebrate, setCelebrate] = useState(false);
 
   const treatedAreas: PatientArea[] = useMemo(
     () => PATIENT_AREAS.filter((a) => treated.includes(a.id)),
@@ -60,23 +75,76 @@ export default function App() {
 
   const face2Treated = FACE2_AREAS.filter((a) => treated.includes(a.id));
 
-  const toggle = (id: string) =>
+  const pct = Math.round((treated.length / PATIENT_AREAS.length) * 100);
+  const allDone = treated.length === PATIENT_AREAS.length;
+  const stage = kireiStage(pct);
+
+  // コンプリートの瞬間だけ紙吹雪
+  useEffect(() => {
+    if (!allDone) return;
+    setCelebrate(true);
+    const t = setTimeout(() => setCelebrate(false), 3200);
+    return () => clearTimeout(t);
+  }, [allDone]);
+
+  const spawnBurst = (x: number, y: number) => {
+    const id = ++burstId.current;
+    setBursts((prev) => [...prev, { id, x, y }]);
+    setTimeout(() => setBursts((prev) => prev.filter((b) => b.id !== id)), 900);
+  };
+
+  const toggle = (id: string, e?: MouseEvent) => {
+    const turningOn = !treated.includes(id);
+    if (turningOn) {
+      if (e) spawnBurst(e.clientX, e.clientY);
+      navigator.vibrate?.(12);
+    }
     setTreated((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50 via-white to-rose-50 text-slate-800">
+      <BurstLayer bursts={bursts} />
+      <ConfettiRain show={celebrate} />
+
       {/* ヘッダー */}
-      <header className="px-5 pt-8 pb-3 text-center">
-        <p className="text-rose-500 text-xs font-bold tracking-widest">MEDICAL BEAUTY</p>
-        <h1 className="mt-1 text-2xl sm:text-3xl font-extrabold text-slate-800 leading-snug">
-          気になるトコ、<span className="text-rose-500">タップ</span>で
-          <br className="sm:hidden" />
-          消してみて
+      <header className="px-5 pt-6 pb-3 text-center">
+        <p className="text-slate-400 text-[11px] font-bold tracking-wide">
+          長野市三輪 美容クリニック 上野医院
+        </p>
+        <h1 className="mt-1 text-3xl sm:text-4xl font-extrabold leading-snug">
+          <span className="bg-gradient-to-r from-rose-500 to-pink-400 bg-clip-text text-transparent">
+            ぽちっとしわとり
+          </span>
         </h1>
-        <p className="mt-2 text-sm text-slate-500">悩みをタップすると消えて、料金がわかります</p>
+        <p className="mt-1.5 text-sm text-slate-500">
+          気になるトコを<span className="text-rose-500 font-bold">タップ</span>
+          すると消えて、料金がわかります
+        </p>
       </header>
 
-      <main className="max-w-md mx-auto px-4 pb-28">
+      {/* キレイ度メーター（スクロールしても見える） */}
+      <div className="sticky top-0 z-30 bg-white/85 backdrop-blur border-b border-rose-100">
+        <div className="max-w-md mx-auto px-4 py-2">
+          <div className="flex items-center justify-between text-xs font-bold">
+            <span className="text-slate-500">
+              キレイ度 <span className="text-base align-middle">{stage.emoji}</span>
+            </span>
+            <span className="text-rose-500">
+              {pct}%（{treated.length}/{PATIENT_AREAS.length}）
+            </span>
+          </div>
+          <div className="mt-1 h-2.5 rounded-full bg-rose-100 overflow-hidden">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-rose-400 via-pink-400 to-amber-300 transition-all duration-500 ease-out"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+          <div className="mt-1 text-[11px] text-slate-500 text-center">{stage.message}</div>
+        </div>
+      </div>
+
+      <main className="max-w-md mx-auto px-4 pb-28 pt-3">
         {/* ===== 段1：表情ジワ＋フェイスライン（写真） ===== */}
         <section>
           <div className="text-center text-xs font-bold text-rose-400 mb-2">シワ・たるみ</div>
@@ -94,7 +162,12 @@ export default function App() {
           </p>
           <div className="mt-2 flex flex-wrap gap-2 justify-center">
             {FACE1_AREAS.map((a) => (
-              <Pill key={a.id} area={a} on={treated.includes(a.id)} onClick={() => toggle(a.id)} />
+              <Pill
+                key={a.id}
+                area={a}
+                on={treated.includes(a.id)}
+                onClick={(e) => toggle(a.id, e)}
+              />
             ))}
           </div>
           <SubtotalBar title="シワ・たるみ" areas={FACE1_AREAS.filter((a) => treated.includes(a.id))} />
@@ -109,7 +182,7 @@ export default function App() {
               const tile = (
                 <button
                   key={a.id}
-                  onClick={() => toggle(a.id)}
+                  onClick={(e) => toggle(a.id, e)}
                   className={`w-full rounded-2xl border p-3 flex flex-col items-center transition-all ${
                     on ? "bg-rose-50 border-rose-300 shadow-md shadow-rose-100" : "bg-white border-rose-100"
                   }`}
@@ -144,6 +217,21 @@ export default function App() {
           </div>
           <SubtotalBar title="小顔・毛穴・口もと" areas={face2Treated} />
         </section>
+
+        {/* コンプリート祝い */}
+        {allDone && (
+          <div className="mt-6 rounded-2xl bg-gradient-to-r from-amber-100 via-rose-100 to-pink-100 border border-amber-200 p-4 text-center shadow-sm">
+            <div className="text-2xl">👑✨🎉</div>
+            <div className="mt-1 font-extrabold text-slate-800">
+              コンプリート！ぜんぶキレイになりました
+            </div>
+            <div className="mt-1 text-xs text-slate-500 leading-relaxed">
+              全部やる必要はありません。気になる1ヶ所だけでもOK。
+              <br />
+              下の合計から「ここだけ」を選び直してみて👇
+            </div>
+          </div>
+        )}
 
         {/* ===== 全体の合計＋説明 ===== */}
         {treatedAreas.length > 0 ? (
@@ -215,6 +303,23 @@ export default function App() {
           </div>
         </section>
 
+        {/* クリニック情報 */}
+        <section className="mt-8 rounded-2xl bg-white border border-rose-100 p-4 text-center">
+          <p className="text-[11px] font-bold text-rose-400 tracking-widest">
+            ぽちっとしわとり 提供
+          </p>
+          <p className="mt-1 text-xs text-slate-500">長野市三輪の美容クリニック</p>
+          <p className="text-lg font-extrabold text-slate-800">上野医院</p>
+          <a
+            href="https://ueno-iin-biyou-miwa.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-block text-xs font-bold text-rose-500 underline underline-offset-2"
+          >
+            公式ホームページを見る
+          </a>
+        </section>
+
         {/* 免責 */}
         <p className="mt-8 text-[11px] leading-relaxed text-slate-400 text-center">
           ※ 表示している変化はイメージであり、効果には個人差があります。
@@ -251,7 +356,15 @@ export default function App() {
   );
 }
 
-function Pill({ area, on, onClick }: { area: PatientArea; on: boolean; onClick: () => void }) {
+function Pill({
+  area,
+  on,
+  onClick,
+}: {
+  area: PatientArea;
+  on: boolean;
+  onClick: (e: MouseEvent) => void;
+}) {
   return (
     <button
       onClick={onClick}
