@@ -65,6 +65,7 @@ export default function App() {
   const [celebrate, setCelebrate] = useState(false);
   // 打ちすぎ（連打）演出：眼瞼下垂＋キレイ度ダウン
   const [overdose, setOverdose] = useState(false);
+  const [overdoseSeen, setOverdoseSeen] = useState(false);
   const tapTimes = useRef<number[]>([]);
   const overdoseUntil = useRef(0);
 
@@ -110,6 +111,7 @@ export default function App() {
       overdoseUntil.current = now + 7000; // 連続発動を防ぐクールダウン
       tapTimes.current = [];
       setOverdose(true);
+      setOverdoseSeen(true);
       navigator.vibrate?.([70, 50, 70]);
       setTimeout(() => setOverdose(false), 3400);
     }
@@ -203,6 +205,22 @@ export default function App() {
           <p className="mt-1 text-center text-[11px] text-slate-400">
             気になる部分（<span className="text-rose-400 font-bold">●</span>）を直接タップしてもOK
           </p>
+
+          {/* 連打イースターエッグへの誘導（発動したら消える） */}
+          {treated.length > 0 && !overdoseSeen && (
+            <motion.p
+              animate={{ rotate: [-1.5, 1.5, -1.5] }}
+              transition={{ repeat: Infinity, duration: 0.9, ease: "easeInOut" }}
+              className="mt-2 text-center text-xs font-bold text-violet-500"
+            >
+              🤫 ちなみに…連打しすぎると、どうなっちゃうと思う…？
+            </motion.p>
+          )}
+          {overdoseSeen && !overdose && (
+            <p className="mt-2 text-center text-[11px] text-slate-400">
+              😌 ご安心を。実際の施術は医師が適量を見極めるので、こうはなりません
+            </p>
+          )}
           <div className="mt-2 flex flex-wrap gap-2 justify-center">
             {FACE1_AREAS.map((a) => (
               <Pill
