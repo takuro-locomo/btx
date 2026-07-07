@@ -12,4 +12,9 @@ body,
 body {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  /* 連打時にテキスト選択やコピーメニューが出ないように（ゲーム的操作感） */
+  user-select: none;
+  -webkit-user-select: none;
+  /* 下スクロールの引っ張り更新で遊びが中断されないように */
+  overscroll-behavior-y: contain;
 }

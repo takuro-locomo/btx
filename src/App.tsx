@@ -130,7 +130,10 @@ export default function App() {
       <ConfettiRain show={celebrate} />
 
       {/* ヘッダー */}
-      <header className="px-5 pt-6 pb-3 text-center">
+      <header
+        className="px-5 pb-3 text-center"
+        style={{ paddingTop: "calc(1.5rem + env(safe-area-inset-top))" }}
+      >
         <p className="text-slate-400 text-[11px] font-bold tracking-wide">
           長野市三輪 美容クリニック 上野医院
         </p>
@@ -146,7 +149,10 @@ export default function App() {
       </header>
 
       {/* キレイ度メーター（スクロールしても見える） */}
-      <div className="sticky top-0 z-30 bg-white/85 backdrop-blur border-b border-rose-100">
+      <div
+        className="sticky top-0 z-30 bg-white/85 backdrop-blur border-b border-rose-100"
+        style={{ paddingTop: "env(safe-area-inset-top)" }}
+      >
         <div className="max-w-md mx-auto px-4 py-2">
           <div className="flex items-center justify-between text-xs font-bold">
             <span className="text-slate-500">
@@ -176,7 +182,7 @@ export default function App() {
         </div>
       </div>
 
-      <main className="max-w-md mx-auto px-4 pb-28 pt-3">
+      <main className="max-w-md mx-auto px-4 pb-32 pt-3">
         {/* ===== 段1：表情ジワ＋フェイスライン（写真） ===== */}
         <section>
           <div className="text-center text-xs font-bold text-rose-400 mb-2">シワ・たるみ</div>
@@ -244,7 +250,7 @@ export default function App() {
                 <button
                   key={a.id}
                   onClick={(e) => toggle(a.id, e)}
-                  className={`w-full rounded-2xl border p-3 flex flex-col items-center transition-all ${
+                  className={`w-full rounded-2xl border p-3 flex flex-col items-center transition-all active:scale-95 ${
                     on ? "bg-rose-50 border-rose-300 shadow-md shadow-rose-100" : "bg-white border-rose-100"
                   }`}
                 >
@@ -392,8 +398,11 @@ export default function App() {
         </p>
       </main>
 
-      {/* 固定CTA */}
-      <div className="fixed bottom-0 inset-x-0 z-20 bg-white/90 backdrop-blur border-t border-rose-100 px-4 py-3">
+      {/* 固定CTA（iPhoneホームバー分の余白を確保） */}
+      <div
+        className="fixed bottom-0 inset-x-0 z-20 bg-white/90 backdrop-blur border-t border-rose-100 px-4 pt-3"
+        style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
+      >
         <div className="max-w-md mx-auto flex gap-2">
           <a
             href="https://lin.ee/zNl8pfQ"
@@ -429,7 +438,7 @@ function Pill({
   return (
     <button
       onClick={onClick}
-      className={`px-3.5 py-2 rounded-full text-sm font-bold border transition-all ${
+      className={`px-3.5 py-2.5 rounded-full text-sm font-bold border transition-all active:scale-90 ${
         on
           ? "bg-rose-500 border-rose-500 text-white shadow-md shadow-rose-200"
           : "bg-white border-rose-200 text-rose-500"
