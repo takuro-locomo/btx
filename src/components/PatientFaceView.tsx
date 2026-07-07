@@ -111,6 +111,8 @@ interface Props {
   hitAreas?: HitArea[];
   treatedIds?: string[];
   onToggleArea?: (id: string, e?: MouseEvent) => void;
+  /** 打ちすぎ状態（眼瞼下垂＝まぶたが下がる） */
+  overdose?: boolean;
 }
 
 export function PatientFaceView({
@@ -119,6 +121,7 @@ export function PatientFaceView({
   hitAreas,
   treatedIds = [],
   onToggleArea,
+  overdose = false,
 }: Props) {
   const gid = useId();
   const treated = new Set(treatedKeys);
@@ -180,6 +183,36 @@ export function PatientFaceView({
 
       <rect x="0" y="0" width="398" height="400" fill={`url(#${gid})`} pointerEvents="none" />
 
+      {/* 打ちすぎ演出：眼瞼下垂でまぶたが下がる */}
+      <g
+        opacity={overdose ? 1 : 0}
+        style={{ transition: "opacity 0.35s ease" }}
+        pointerEvents="none"
+      >
+        {/* 左まぶた */}
+        <ellipse cx="163" cy="165" rx="19" ry="10" fill="#f6ddcc" />
+        <path
+          d="M 146 167 Q 163 176 180 167"
+          stroke="#8a6a52"
+          strokeWidth="2.2"
+          fill="none"
+          strokeLinecap="round"
+        />
+        {/* 右まぶた */}
+        <ellipse cx="236" cy="165" rx="19" ry="10" fill="#f6ddcc" />
+        <path
+          d="M 219 167 Q 236 176 253 167"
+          stroke="#8a6a52"
+          strokeWidth="2.2"
+          fill="none"
+          strokeLinecap="round"
+        />
+        {/* 困りマーク */}
+        <text x="262" y="130" fontSize="20" pointerEvents="none">
+          💦
+        </text>
+      </g>
+
       {/* 顔の各しわ位置をタップして治療 */}
       {hitAreas?.map((area) => {
         const done = treatedIdSet.has(area.id);
@@ -190,17 +223,34 @@ export function PatientFaceView({
               <g key={i}>
                 {/* タップ領域（透明） */}
                 <rect x={r.x} y={r.y} width={r.w} height={r.h} fill="transparent" />
-                {/* 未治療の目印（ふわっと点滅） */}
+                {/* 未治療の目印（ふわっと点滅＋広がる波紋） */}
                 {!done && (
-                  <circle
-                    className="animate-pulse"
-                    cx={r.x + r.w / 2}
-                    cy={r.y + r.h / 2}
-                    r="7"
-                    fill="#f43f5e"
-                    opacity="0.35"
-                    pointerEvents="none"
-                  />
+                  <g pointerEvents="none">
+                    <circle
+                      className="animate-pulse"
+                      cx={r.x + r.w / 2}
+                      cy={r.y + r.h / 2}
+                      r="7"
+                      fill="#f43f5e"
+                      opacity="0.35"
+                    />
+                    <circle
+                      cx={r.x + r.w / 2}
+                      cy={r.y + r.h / 2}
+                      r="7"
+                      fill="none"
+                      stroke="#f43f5e"
+                      strokeWidth="1.6"
+                    >
+                      <animate attributeName="r" values="7;14" dur="1.5s" repeatCount="indefinite" />
+                      <animate
+                        attributeName="opacity"
+                        values="0.55;0"
+                        dur="1.5s"
+                        repeatCount="indefinite"
+                      />
+                    </circle>
+                  </g>
                 )}
               </g>
             ))}

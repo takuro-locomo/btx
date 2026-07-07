@@ -11,6 +11,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { MouseEvent } from "react";
+import { motion } from "framer-motion";
 import { PatientFaceView } from "./components/PatientFaceView";
 import { JawView, PoreView, SmileView } from "./components/TreatmentTiles";
 import { BurstLayer, ConfettiRain, type Burst } from "./components/FunEffects";
@@ -62,6 +63,10 @@ export default function App() {
   const [bursts, setBursts] = useState<Burst[]>([]);
   const burstId = useRef(0);
   const [celebrate, setCelebrate] = useState(false);
+  // 打ちすぎ（連打）演出：眼瞼下垂＋キレイ度ダウン
+  const [overdose, setOverdose] = useState(false);
+  const tapTimes = useRef<number[]>([]);
+  const overdoseUntil = useRef(0);
 
   const treatedAreas: PatientArea[] = useMemo(
     () => PATIENT_AREAS.filter((a) => treated.includes(a.id)),
@@ -77,7 +82,11 @@ export default function App() {
 
   const pct = Math.round((treated.length / PATIENT_AREAS.length) * 100);
   const allDone = treated.length === PATIENT_AREAS.length;
-  const stage = kireiStage(pct);
+  // 打ちすぎ中はキレイ度が一時的にダウン
+  const shownPct = overdose ? Math.max(0, pct - 30) : pct;
+  const stage = overdose
+    ? { emoji: "😵", message: "⚠ 打ちすぎ！まぶたが重くなっちゃった…ボトックスは適量が大事" }
+    : kireiStage(pct);
 
   // コンプリートの瞬間だけ紙吹雪
   useEffect(() => {
@@ -94,6 +103,17 @@ export default function App() {
   };
 
   const toggle = (id: string, e?: MouseEvent) => {
+    // 短時間に連打しすぎると「打ちすぎ」＝眼瞼下垂でキレイ度ダウン（ボトックスは適量が大事）
+    const now = Date.now();
+    tapTimes.current = [...tapTimes.current.filter((t) => now - t < 2200), now];
+    if (tapTimes.current.length >= 6 && now > overdoseUntil.current) {
+      overdoseUntil.current = now + 7000; // 連続発動を防ぐクールダウン
+      tapTimes.current = [];
+      setOverdose(true);
+      navigator.vibrate?.([70, 50, 70]);
+      setTimeout(() => setOverdose(false), 3400);
+    }
+
     const turningOn = !treated.includes(id);
     if (turningOn) {
       if (e) spawnBurst(e.clientX, e.clientY);
@@ -130,17 +150,27 @@ export default function App() {
             <span className="text-slate-500">
               キレイ度 <span className="text-base align-middle">{stage.emoji}</span>
             </span>
-            <span className="text-rose-500">
-              {pct}%（{treated.length}/{PATIENT_AREAS.length}）
+            <span className={overdose ? "text-violet-500" : "text-rose-500"}>
+              {shownPct}%（{treated.length}/{PATIENT_AREAS.length}）
             </span>
           </div>
           <div className="mt-1 h-2.5 rounded-full bg-rose-100 overflow-hidden">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-rose-400 via-pink-400 to-amber-300 transition-all duration-500 ease-out"
-              style={{ width: `${pct}%` }}
+              className={`h-full rounded-full transition-all duration-500 ease-out ${
+                overdose
+                  ? "bg-gradient-to-r from-violet-400 to-slate-400"
+                  : "bg-gradient-to-r from-rose-400 via-pink-400 to-amber-300"
+              }`}
+              style={{ width: `${shownPct}%` }}
             />
           </div>
-          <div className="mt-1 text-[11px] text-slate-500 text-center">{stage.message}</div>
+          <div
+            className={`mt-1 text-[11px] text-center font-bold ${
+              overdose ? "text-violet-600" : "text-slate-500 font-normal"
+            }`}
+          >
+            {stage.message}
+          </div>
         </div>
       </div>
 
@@ -148,6 +178,18 @@ export default function App() {
         {/* ===== 段1：表情ジワ＋フェイスライン（写真） ===== */}
         <section>
           <div className="text-center text-xs font-bold text-rose-400 mb-2">シワ・たるみ</div>
+
+          {/* はじめての行動喚起（最初のタップまで表示） */}
+          {treated.length === 0 && (
+            <motion.div
+              animate={{ y: [0, 8, 0] }}
+              transition={{ repeat: Infinity, duration: 1.1, ease: "easeInOut" }}
+              className="relative z-10 -mb-4 mx-auto w-fit px-5 py-2.5 rounded-full bg-rose-500 text-white text-base font-extrabold shadow-lg shadow-rose-300"
+            >
+              👇 赤い<span className="mx-0.5">●</span>をぽちっと押してみて！
+            </motion.div>
+          )}
+
           <div className="rounded-3xl bg-white shadow-xl shadow-rose-100/70 border border-rose-100 overflow-hidden">
             <PatientFaceView
               renderKeys={FACE1_KEYS}
@@ -155,6 +197,7 @@ export default function App() {
               hitAreas={FACE1_AREAS.map((a) => ({ id: a.id, keys: a.wrinkleKeys }))}
               treatedIds={treated}
               onToggleArea={toggle}
+              overdose={overdose}
             />
           </div>
           <p className="mt-1 text-center text-[11px] text-slate-400">
