@@ -16,7 +16,7 @@ import type { WrinkleKey } from "../data/patientAreas";
 const W = "#a9776b";
 const WS = "#8f5f54";
 
-const VB_X = 120, VB_Y = 56, VB_W = 164, VB_H = 240;
+const VB_X = 120, VB_Y = 56, VB_W = 164, VB_H = 300;
 
 interface PathDef {
   d: string;
@@ -67,6 +67,12 @@ const WRINKLE_PATHS: Record<WrinkleKey, PathDef[]> = {
     { d: "M 251 224 Q 245 248 222 262", w: 3.4, shadow: true, opacity: 0.35 },
     { d: "M 176 266 Q 200 278 224 266", w: 2.6, shadow: true, opacity: 0.28 },
   ],
+  // 首の縦すじ（プラティスマバンド）
+  platysmal_bands: [
+    { d: "M 183 298 Q 180 320 177 342", w: 2.4, shadow: true, opacity: 0.3 },
+    { d: "M 200 300 Q 200 322 200 346", w: 2.2, shadow: true, opacity: 0.26 },
+    { d: "M 217 298 Q 220 320 223 342", w: 2.4, shadow: true, opacity: 0.3 },
+  ],
 };
 
 interface Rect { x: number; y: number; w: number; h: number; }
@@ -89,6 +95,7 @@ const HIT_BY_KEY: Record<WrinkleKey, Rect[]> = {
     { x: 138, y: 214, w: 42, h: 54 },
     { x: 220, y: 214, w: 42, h: 54 },
   ],
+  platysmal_bands: [{ x: 168, y: 292, w: 64, h: 58 }],
 };
 
 interface HitArea {
@@ -121,7 +128,8 @@ export function PatientFaceView({
   return (
     <svg
       viewBox={`${VB_X} ${VB_Y} ${VB_W} ${VB_H}`}
-      className="w-full"
+      className="block w-full mx-auto"
+      style={{ touchAction: "manipulation" }}
       role="img"
       aria-label="お顔のイラスト（気になる部位をタップで改善）"
     >
@@ -130,9 +138,20 @@ export function PatientFaceView({
           <stop offset="0%" stopColor="#ffffff" stopOpacity={glow * 0.4} />
           <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
         </radialGradient>
+        {/* svg要素の縦横比がviewBoxとずれても、元画像のラベル円等が見えないようクリップ */}
+        <clipPath id={`${gid}-clip`}>
+          <rect x={VB_X} y={VB_Y} width={VB_W} height={VB_H} />
+        </clipPath>
       </defs>
 
-      <image href="/face-clean.png" x="0" y="0" width="398" height="400" />
+      <image
+        href="/face-clean.png"
+        x="0"
+        y="0"
+        width="398"
+        height="400"
+        clipPath={`url(#${gid}-clip)`}
+      />
 
       {renderKeys.map((key) => (
         <g

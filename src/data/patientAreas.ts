@@ -24,7 +24,8 @@ export type WrinkleKey =
   | "bunny_lines"
   | "lower_lid_wrinkles"
   | "chin_lines"
-  | "sagging";
+  | "sagging"
+  | "platysmal_bands";
 
 /** 段2の専用ビフォーアフター図の種類 */
 export type TileView = "jaw" | "pore" | "smile";
@@ -143,13 +144,13 @@ export const PATIENT_AREAS: PatientArea[] = [
   },
   {
     id: "nefertiti",
-    label: "フェイスラインのたるみ",
-    catch: "あご下・首がもたつく",
+    label: "フェイスライン・首のたるみ",
+    catch: "あご下のもたつき・首の縦すじ",
     icon: "💎",
     section: "face1",
-    wrinkleKeys: ["sagging"],
+    wrinkleKeys: ["sagging", "platysmal_bands"],
     afterMessage:
-      "ネフェルティティリフトで下がったフェイスラインを引き上げ。あご下〜首すじがすっきり、横顔美人に。",
+      "ネフェルティティリフトで下がったフェイスラインを引き上げ。首の縦すじ（プラティスマバンド）もゆるんで、あご下〜首もとがすっきり、横顔美人に。",
     duration: "約3〜4ヶ月",
     priceLabel: "¥52,800（金土 ¥33,000）",
     priceValue: 52800,
