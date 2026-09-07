@@ -352,3 +352,47 @@ export interface ClinicalModelResult {
   detail: string;
   observation: string;
 }
+
+// Botox Vista: product-specific arithmetic and label references, separate from
+// the unvalidated visual teaching model above.
+export type VistaRegionId = "glabella" | "eyes" | "masseter";
+export interface VistaDoseInput {
+  vialUnits: 50 | 100;
+  diluentMl: number | null;
+  totalUnits: number | null;
+  points: number | null;
+}
+export interface VistaDoseReference {
+  id: VistaRegionId;
+  name: string;
+  scope: string;
+  minUnits: number;
+  maxUnits: number;
+  points: number;
+  distribution: string;
+  maxMlPerPoint: number;
+  trial: {
+    section: string;
+    time: string;
+    population: string;
+    endpoint: string;
+    arms: { units: number; responders: number; evaluated: number; rate: number }[];
+  };
+}
+export interface VistaDoseIssue {
+  id: "dose-low" | "dose-high" | "volume-high" | "points" | "dilution" | "vial-indication" | "multiple-vials" | "off-label";
+  message: string;
+  level: "note" | "warning";
+}
+export type VistaDoseResult = {
+  calculable: false;
+  errors: string[];
+} | {
+  calculable: true;
+  concentration: number;
+  unitsPerTenthMl: number;
+  unitsPerPoint: number;
+  mlPerPoint: number;
+  totalMl: number;
+  issues: VistaDoseIssue[];
+};

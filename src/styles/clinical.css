@@ -246,3 +246,78 @@
   .face-comparison.is-zoomed .clinical-face-svg { height: 175px; }
   .scenario-buttons button { font-size: 10px; }
 }
+
+/* Product-specific U/mL arithmetic is kept distinct from the face examples. */
+.vista-shortcut { display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid #d7e0de; background: #f3f8f6; color: #52726a; padding: 10px 16px; border-radius: 10px; margin: -5px 0 18px; text-decoration: none; font-size: 12px; }
+.vista-shortcut strong { font-size: 13px; font-weight: 650; }
+#vista-dose { scroll-margin-top: 78px; }
+.vista-panel { padding: 22px 24px; border-bottom: 1px solid var(--line); background: linear-gradient(160deg, #fff, #fffbfc); }
+.vista-heading h2 { font-size: 21px; color: #744455; font-weight: 700; letter-spacing: -.02em; line-height: 1.6; margin: 6px 0; }
+.vista-heading h2 > span { font-size: 11px; white-space: nowrap; color: #92707e; border: 1px solid #e4d0d8; border-radius: 5px; padding: 4px 6px; vertical-align: middle; display: inline-block; }
+.vista-scope { margin: 6px 0 14px; color: #6c4c59; font-size: 14px; font-weight: 650; }
+.vista-scope span { display: block; font-size: 11px; color: #947e87; font-weight: 400; }
+.vista-reference { border: 1px solid #dfced5; background: #fcf5f8; padding: 11px 14px; border-radius: 12px; }
+.vista-reference > div:first-child { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.vista-reference > div:first-child > span { font-size: 11px; color: #9d7383; }
+.vista-reference strong { font-size: 25px; color: #914f66; font-variant-numeric: tabular-nums; line-height: 1.5; }
+.vista-reference strong small { font-size: 12px; }
+.vista-reference p { font-size: 11px; margin: 3px 0 8px; color: #8b7180; }
+.vista-dose-presets, .vista-dilution-presets { display: flex; gap: 7px; align-items: center; }
+.vista-dose-presets button { padding: 8px 13px; color: #934961; background: #fff; border: 1px solid #dfc7d0; border-radius: 7px; font-size: 12px; }
+.vista-form-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; margin-top: 17px; }
+.vista-form-row label, .vista-point-input { font-size: 12px; color: #78606b; font-weight: 550; }
+.vista-form-row select, .vista-input-unit { margin-top: 5px; width: 100%; background: #fff; border: 1px solid #dbc7d0; border-radius: 8px; min-height: 44px; }
+.vista-form-row select { padding: 10px 12px; color: #654454; font-size: 16px; }
+.vista-input-unit { display: flex; align-items: center; overflow: hidden; }
+.vista-input-unit input { min-width: 0; width: 100%; padding: 10px 5px 10px 12px; border: 0; background: transparent; color: #654454; font-size: 18px; font-weight: 550; font-variant-numeric: tabular-nums; }
+.vista-input-unit > span { padding: 0 10px 0 3px; font-size: 12px; color: #a18894; white-space: nowrap; }
+.vista-input-unit:focus-within { outline: 2px solid #b7859b; outline-offset: 2px; }
+.vista-input-unit input:focus-visible { outline: none; }
+.vista-dilution-presets { justify-content: flex-end; margin: 9px 0 14px; }
+.vista-dilution-presets > span { font-size: 10px; color: #98818d; }
+.vista-dilution-presets button { font-size: 11px; border: 1px solid #e0ccd4; color: #927080; border-radius: 6px; padding: 6px 10px; }
+.vista-dilution-presets button[aria-pressed="true"] { background: #ecdbe3; border-color: #c69cae; color: #803c55; }
+.vista-concentration { background: #f1f7f5; border: 1px solid #d5e3de; padding: 12px 15px; border-radius: 11px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.vista-concentration > span:first-child { font-size: 12px; color: #769188; }
+.vista-concentration > strong { color: #507b6c; font-size: 25px; font-weight: 650; }
+.vista-concentration > strong small { font-size: 12px; font-weight: 500; }
+.vista-concentration > span:last-child { margin-left: auto; font-size: 12px; color: #779487; }
+.vista-point-input { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 13px; }
+.vista-point-input .vista-input-unit { max-width: 52%; margin: 0; }
+.vista-results { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid #e6d1dc; border-radius: 11px; background: #fff8fb; margin-top: 17px; overflow: hidden; }
+.vista-results > div { padding: 12px 13px; min-width: 0; }
+.vista-results > div + div { border-left: 1px solid #e6d1dc; }
+.vista-results span { display: block; font-size: 10px; color: #9b7b8c; }
+.vista-results strong { display: block; font-size: clamp(18px, 2vw, 26px); font-weight: 650; color: #a04c71; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.vista-results strong small { font-size: 11px; font-weight: 400; }
+.vista-checks { margin-top: 12px; font-size: 11px; color: #8b7882; line-height: 1.8; }
+.vista-checks p { margin: 7px 0; }
+.vista-checks ul { list-style: none; padding: 0; margin: 0; }
+.vista-checks li { margin-top: 7px; padding: 9px 11px; border-radius: 7px; border: 1px solid #ebdfcc; color: #967447; background: #fffbf0; }
+.vista-checks .warning { color: #ae405a; border-color: #e8bcc6; background: #fff1f4; }
+.vista-off-label { padding: 11px 13px; color: #8a7351; background: #fcf8ed; border: 1px solid #e8dcc2; border-radius: 9px; font-size: 12px; line-height: 1.8; }
+.vista-formula, .vista-trial { border-top: 1px solid #eee1e7; margin-top: 13px; padding-top: 11px; }
+.vista-formula summary, .vista-trial summary { font-size: 12px; color: #9a647d; cursor: pointer; }
+.vista-formula p, .vista-trial p { font-size: 11px; line-height: 1.85; margin: 9px 0; color: #927985; }
+.vista-table-scroll { overflow-x: auto; }
+.vista-formula table { width: 100%; border-collapse: collapse; font-size: 11px; white-space: nowrap; }
+.vista-formula caption { padding: 8px 0; font-size: 10px; color: #9d8992; text-align: left; }
+.vista-formula th, .vista-formula td { font-weight: 400; text-align: left; padding: 8px 6px; border-bottom: 1px solid #eadde3; color: #836978; }
+.vista-formula thead { background: #fbf3f7; }
+.vista-trial summary > span { float: right; font-size: 10px; color: #a08695; }
+.vista-trial .vista-endpoint { color: #785769; font-weight: 600; }
+.vista-trial-arms { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.vista-trial-arms > div { border: 1px solid #eadbe3; border-radius: 9px; padding: 9px 13px; background: #faf7f9; }
+.vista-trial-arms .is-selected { border-color: #bf8da6; background: #f8eaf2; }
+.vista-trial-arms span { display: block; font-size: 11px; color: #997688; }
+.vista-trial-arms strong { color: #8b4c6c; font-size: 24px; }
+.vista-trial-arms small { font-size: 13px; }
+.vista-trial a, .vista-source { font-size: 11px; color: var(--rose); }
+.vista-footnote { font-size: 11px; color: #987e8e; margin: 14px 0 8px; line-height: 1.85; }
+@media (max-width: 420px) {
+  .vista-panel { padding: 20px 17px; }
+  .vista-heading h2 { font-size: 19px; }
+  .vista-form-row { gap: 9px; }
+  .vista-form-row label { font-size: 11px; }
+  .vista-shortcut { padding: 10px 12px; flex-wrap: wrap; gap: 3px; }
+}
