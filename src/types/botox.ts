@@ -304,3 +304,41 @@ export interface UserProfile {
   terminologyLevel: "simple" | "medical";
   language: "ja" | "en";
 }
+
+// Clinical Lab: categorical teaching model; no patient-specific prediction.
+export type ClinicalRegionId = "forehead" | "glabella" | "eyes" | "bunny" | "gummy" | "lips" | "dao" | "chin" | "masseter" | "neck";
+export type ClinicalLayer = "dermis" | "subcutaneous" | "superficial" | "deep";
+export type ClinicalView = "surface" | "anatomy" | "section";
+export type ClinicalTime = 0 | 3 | 14 | 90 | 120;
+export type ClinicalSourceId = "pmda" | "mechanism" | "corrugator" | "masseter" | "atlas" | "dao" | "mentalis";
+export interface ClinicalRegion {
+  id: ClinicalRegionId;
+  name: string;
+  english: string;
+  muscles: string;
+  action: string;
+  anatomy: string;
+  observation: string;
+  caution: string;
+  superficialNote: string;
+  deepNote: string;
+  layer: ClinicalLayer;
+  approved: boolean;
+  points: Point2D[];
+  sources: ClinicalSourceId[];
+}
+export interface ClinicalSettings {
+  region: ClinicalRegionId;
+  layer: ClinicalLayer;
+  corrugatorPart: "medial" | "lateral";
+  time: ClinicalTime;
+  expression: number;
+  exposure: boolean;
+}
+export interface ClinicalModelResult {
+  targetLayer: ClinicalLayer;
+  layerMatch: boolean;
+  message: string;
+  /** Display-only coefficient; never render as a clinical percentage. */
+  visualRelaxation: number;
+}

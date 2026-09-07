@@ -1,0 +1,119 @@
+import { useId } from "react";
+import { CLINICAL_REGIONS } from "../data/clinical";
+import type { ClinicalRegionId, ClinicalSettings } from "../types/botox";
+
+// Projection onto the existing face illustration. Coordinates are drawing units.
+// Reuses the original anatomy layer's regional structure with finer fiber paths.
+const MUSCLES: { id: ClinicalRegionId; d: string; rotation: number }[] = [
+  { id: "forehead", d: "M151 137 Q149 110 158 88 Q175 81 195 85 L196 143 Q175 136 151 146Z M205 85 Q227 81 243 88 Q251 111 249 146 Q226 136 204 143Z", rotation: 0 },
+  { id: "glabella", d: "M195 151 Q187 149 169 139 Q181 137 195 143Z M205 151 Q214 149 231 139 Q219 137 205 143Z M195 151 L205 151 L204 181 Q200 178 196 181Z", rotation: 25 },
+  { id: "eyes", d: "M143 159 C143 130 196 131 198 158 C201 189 142 189 143 159Z M155 161 C157 151 187 151 188 161 C187 171 157 174 155 161Z M203 158 C204 131 257 130 258 159 C260 189 201 189 203 158Z M213 161 C214 151 244 151 246 161 C244 174 214 171 213 161Z", rotation: 90 },
+  { id: "bunny", d: "M185 195 L194 186 L198 203 L190 207Z M216 195 L207 186 L203 203 L211 207Z", rotation: 70 },
+  { id: "gummy", d: "M184 174 Q188 196 181 224 L190 230 Q195 198 190 176Z M217 174 Q213 196 220 224 L211 230 Q206 198 211 176Z", rotation: 8 },
+  { id: "lips", d: "M177 236 Q185 223 199 227 Q215 221 225 236 Q221 252 200 253 Q181 251 177 236Z M184 238 Q199 246 218 238 Q203 231 200 235 Q195 231 184 238Z", rotation: 90 },
+  { id: "dao", d: "M178 237 Q169 241 159 257 L176 266 Q180 250 181 239Z M223 237 Q232 241 242 257 L225 266 Q221 250 220 239Z", rotation: 25 },
+  { id: "chin", d: "M190 251 Q186 259 191 272 L198 271 L198 252Z M210 251 Q215 259 209 272 L202 271 L202 252Z", rotation: 0 },
+  { id: "masseter", d: "M137 200 L154 203 Q158 224 164 248 L152 257 Q139 242 136 219Z M264 200 L247 203 Q243 224 237 248 L249 257 Q262 242 265 219Z", rotation: -18 },
+  { id: "neck", d: "M174 276 Q181 292 164 342 L196 349 L195 282Z M227 276 Q220 292 237 342 L205 349 L206 282Z", rotation: 10 },
+];
+const WRINKLES: Partial<Record<ClinicalRegionId, string[]>> = {
+  forehead: ["M158 104 Q200 97 242 104", "M156 115 Q200 109 244 115", "M160 126 Q200 119 240 126"],
+  glabella: ["M195 138 Q192 147 194 155", "M205 138 Q208 147 206 155"],
+  eyes: ["M149 155 L137 147", "M148 164 L133 164", "M149 173 L137 181", "M253 155 L266 147", "M254 164 L269 164", "M253 173 L266 181"],
+  bunny: ["M189 184 Q185 191 187 199", "M211 184 Q215 191 213 199"],
+  lips: ["M187 223 L187 228", "M194 221 L194 226", "M207 221 L207 226", "M214 223 L214 228"],
+  chin: ["M191 255 Q189 261 192 267", "M200 255 L200 268", "M209 255 Q211 261 208 267"],
+  neck: ["M181 293 Q180 320 175 340", "M220 293 Q221 320 226 340"],
+};
+
+interface Props {
+  settings: ClinicalSettings;
+  relaxation: number;
+  skin: number;
+  muscles: boolean;
+  landmarks: boolean;
+  before: boolean;
+  onSelect: (id: ClinicalRegionId) => void;
+}
+export function ClinicalFace({ settings, relaxation, skin, muscles, landmarks, before, onSelect }: Props) {
+  const uid = useId().replace(/:/g, "");
+  const includeNeck = settings.region === "neck";
+  const expression = settings.expression / 100;
+  const active = (before ? 1 : 1 - relaxation) * expression;
+  return (
+    <svg viewBox={includeNeck ? "120 58 164 296" : "120 58 164 224"} className="clinical-face-svg" aria-label="顔面筋の前面投影。丸印は部位を選ぶボタンです">
+      <defs>
+        <clipPath id={uid + "-face"}><rect x="120" y="58" width="164" height="296" /></clipPath>
+        {MUSCLES.map((m, i) => (
+          <pattern key={m.id} id={uid + "-fib-" + m.id} width="2.6" height="5" patternUnits="userSpaceOnUse" patternTransform={"rotate(" + m.rotation + ")"}>
+            <rect width="2.6" height="5" fill={i < 3 ? "#d98679" : "#c97967"} />
+            <path d="M.5 0V5 M1.2 0V5" stroke="#f4beaa" strokeWidth=".35" />
+            <path d="M2 0V5" stroke="#99584e" strokeWidth=".35" />
+          </pattern>
+        ))}
+      </defs>
+      <image href="/face-clean.png" x="0" y="0" width="398" height="400" clipPath={"url(#" + uid + "-face)"} />
+      {muscles && (
+        <g opacity={(100 - skin) / 100} className="muscle-overlay" aria-label="筋の位置関係の模式表示">
+          {/* Adjacent zygomaticus and DLI are muted context, not treatment targets. */}
+          <g fill="#dbae9d" stroke="#b78978" strokeWidth=".5">
+            <path d="M151 182 L146 190 L179 237 L184 234Z M250 182 L255 190 L222 237 L217 234Z" />
+            <path d="M181 249 L181 267 L191 259 L191 248Z M220 249 L220 267 L210 259 L210 248Z" />
+          </g>
+          {MUSCLES.map(m => {
+            const selected = m.id === settings.region;
+            const scale = selected ? 1 - active * .027 : 1;
+            return <path key={m.id} d={m.d} fill={"url(#" + uid + "-fib-" + m.id + ")"} fillRule="evenodd"
+              stroke={selected ? "#7e3742" : "#aa7666"} strokeWidth={selected ? 1.2 : .4}
+              opacity={selected ? 1 : .38}
+              style={{ transform: "scaleY(" + scale + ")", transformBox: "fill-box", transformOrigin: "center", transition: "transform .4s ease, opacity .3s" }} />;
+          })}
+        </g>
+      )}
+      {/* Static skin changes remain at rest; animation never claims complete removal. */}
+      {Object.entries(WRINKLES).map(([id, paths]) => (
+        <g key={id} fill="none" stroke="#946859" strokeWidth=".85" strokeLinecap="round"
+          opacity={id === settings.region ? .2 + active * .65 : .12}
+          style={{ transition: "opacity .45s" }}>
+          {paths.map(d => <path key={d} d={d} />)}
+        </g>
+      ))}
+      {settings.region === "glabella" && <g stroke="#80564a" strokeWidth="1.3" fill="none" opacity={.45 + expression * .2}>
+        <path d={"M154 143 Q173 " + (140 + active * 3) + " 187 " + (143 + active * 3)} />
+        <path d={"M213 " + (143 + active * 3) + " Q230 " + (140 + active * 3) + " 245 143"} />
+      </g>}
+      {muscles && expression > 0 && <g stroke="#743d56" strokeWidth=".85" fill="none" opacity=".85" pointerEvents="none">
+        {(settings.region === "forehead" ? [{ x: 176, y: 122, dx: 0, dy: -13 }, { x: 226, y: 122, dx: 0, dy: -13 }]
+          : settings.region === "glabella" ? [{ x: 179, y: 139, dx: 9, dy: 4 }, { x: 222, y: 139, dx: -9, dy: 4 }]
+          : settings.region === "eyes" ? [{ x: 146, y: 151, dx: 4, dy: 9 }, { x: 255, y: 151, dx: -4, dy: 9 }]
+          : settings.region === "dao" ? [{ x: 174, y: 241, dx: -4, dy: 13 }, { x: 227, y: 241, dx: 4, dy: 13 }]
+          : settings.region === "masseter" ? [{ x: 150, y: 238, dx: -3, dy: -16 }, { x: 251, y: 238, dx: 3, dy: -16 }]
+          : settings.region === "chin" ? [{ x: 192, y: 267, dx: 0, dy: -9 }, { x: 208, y: 267, dx: 0, dy: -9 }]
+          : settings.region === "gummy" ? [{ x: 186, y: 220, dx: 0, dy: -12 }, { x: 215, y: 220, dx: 0, dy: -12 }]
+          : settings.region === "neck" ? [{ x: 183, y: 302, dx: -4, dy: 15 }, { x: 218, y: 302, dx: 4, dy: 15 }]
+          : []).map((v, i) => {
+          const length = .3 + active * .7;
+          const x = v.x + v.dx * length, y = v.y + v.dy * length;
+          const angle = Math.atan2(v.dy, v.dx);
+          return <g key={i}><path d={"M" + v.x + " " + v.y + " L" + x + " " + y} /><path d={"M" + (x - 3 * Math.cos(angle - .5)) + " " + (y - 3 * Math.sin(angle - .5)) + " L" + x + " " + y + " L" + (x - 3 * Math.cos(angle + .5)) + " " + (y - 3 * Math.sin(angle + .5))} /></g>;
+        })}
+      </g>}
+      {landmarks && <g fill="none" stroke="#557e89" strokeWidth=".65" strokeDasharray="2 2" opacity=".9" pointerEvents="none">
+        <path d="M139 158 C140 123 199 126 199 159 M202 159 C203 126 261 123 262 158" />
+        <path d="M173 84 V272 M228 84 V272" />
+        <text x="125" y="80" fontSize="5.4" fill="#42616c" stroke="none">瞳孔線・眼窩上縁の概念位置</text>
+      </g>}
+      {!before && CLINICAL_REGIONS.filter(r => includeNeck || r.id !== "neck").map(r => r.points.map((p, i) => {
+        const selected = r.id === settings.region;
+        return <g key={r.id + i} role="button" tabIndex={0} aria-label={r.name + "を選択"} aria-pressed={selected}
+          className="face-selector" onClick={() => onSelect(r.id)}
+          onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(r.id); } }}>
+          <circle cx={p.x} cy={p.y} r="8.2" fill="transparent" />
+          <circle cx={p.x} cy={p.y} r={selected ? 4.8 : 3.3} fill={selected ? "#b43e64" : "#fff"} stroke={selected ? "#fff" : "#b43e64"} strokeWidth="1" />
+          {selected && <circle cx={p.x} cy={p.y} r="1.45" fill="white" />}
+        </g>;
+      }))}
+      {before && <text x="200" y="73" textAnchor="middle" fontSize="7" fill="#60443e">作用前の比較表示</text>}
+    </svg>
+  );
+}
