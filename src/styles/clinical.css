@@ -188,3 +188,61 @@
   .evidence-details ul { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) { .clinical-app *, .clinical-app *::after { animation: none !important; transition: none !important; } }
+
+/* Side-by-side effects keep the original rose palette and card structure. */
+.comparison-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 0 18px 10px; font-size: 11px; color: #88717c; }
+.comparison-toolbar button { background: #fff5f8; border: 1px solid #dec4ce; padding: 7px 10px; color: var(--rose); border-radius: 8px; font-size: 12px; }
+.face-comparison { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; padding: 0 14px; }
+.comparison-face { min-width: 0; overflow: hidden; border: 1px solid #e9e0df; border-radius: 13px; background: #fcf8f6; position: relative; }
+.comparison-face.current { border-color: #d7bcc7; background: #fff6f9; }
+.comparison-label { padding: 10px 11px 4px; line-height: 1.5; position: relative; z-index: 1; }
+.comparison-label span { display: block; font-size: 9px; font-weight: 650; letter-spacing: .09em; color: #96848b; }
+.comparison-label strong { font-size: 13px; color: #785563; font-weight: 650; }
+.comparison-face .clinical-face-svg { height: auto; max-height: 330px; mix-blend-mode: multiply; }
+.face-comparison.is-zoomed .clinical-face-svg { height: 230px; }
+.face-bottom-label { display: block; text-align: center; margin: 5px 6px 10px; font-size: 11px; color: #866d78; }
+.comparison-face.state-excess, .comparison-face.state-spread { border-color: #ce788d; background: #fff1f2; }
+.comparison-face.state-relaxed { border-color: #97b7b2; background: #f2f9f6; }
+.moving-feature { transition: transform .2s ease-out; }
+.effect-readout { margin: 0 17px 16px; padding: 13px 15px; border: 1px solid #e8d9cd; background: #fff9f1; border-radius: 12px; }
+.effect-state-heading { display: flex; align-items: center; gap: 8px; }
+.effect-state-heading strong { font-size: 14px; font-weight: 700; color: #83613d; }
+.effect-symbol { width: 22px; height: 22px; display: grid; place-items: center; flex-shrink: 0; color: #fff; background: #ac8757; border-radius: 50%; line-height: 1; font-weight: 700; }
+.effect-readout > p { font-size: 12px; color: #806d62; margin: 7px 0 0; line-height: 1.7; }
+.effect-readout.state-relaxed { background: #f2f8f6; border-color: #cee3dd; }
+.state-relaxed .effect-state-heading strong { color: #426c60; }
+.state-relaxed .effect-symbol { background: #628e80; }
+.effect-readout.state-excess, .effect-readout.state-spread { background: #fff1f3; border-color: #e9b9c4; }
+.state-excess .effect-state-heading strong, .state-spread .effect-state-heading strong { color: #a63d57; }
+.state-excess .effect-symbol, .state-spread .effect-symbol { background: #b94b65; }
+.effect-readout .adverse-observation { color: #a03d56; border-top: 1px solid #edcbd3; padding-top: 9px; }
+.movement-meter { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-size: 10px; color: #8b6e7c; }
+.movement-meter b { min-width: 5em; text-align: right; font-size: 11px; font-weight: 600; }
+.movement-track { height: 6px; flex: 1; background: #e8dce1; border-radius: 8px; overflow: hidden; }
+.movement-track i { display: block; height: 100%; background: #b77790; border-radius: inherit; transition: width .35s; }
+.dose-controls { padding: 17px 23px; border-top: 1px solid var(--line); background: #fffdfd; }
+.dose-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.dose-heading label { color: #715361; font-size: 14px; font-weight: 650; }
+.dose-heading small { display: block; font-size: 10px; color: #9c818e; font-weight: 400; }
+.dose-heading output { font-size: 27px; font-weight: 600; color: var(--rose); font-variant-numeric: tabular-nums; }
+.dose-heading output span { font-size: 11px; color: #ab8998; font-weight: 400; }
+.dose-note, .scenario-hint { font-size: 10px; color: #917b86; margin: 9px 0; line-height: 1.6; }
+.scenario-buttons { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; margin-top: 14px; }
+.scenario-buttons button { font-size: 11px; padding: 10px 3px; color: #866545; background: #fff8ee; border: 1px solid #e5d8c6; border-radius: 8px; min-height: 40px; }
+.scenario-buttons button:nth-child(2) { color: #507869; border-color: #c9ded3; background: #f2f8f5; }
+.scenario-buttons button:nth-child(3) { color: #ae4660; border-color: #e5bcc8; background: #fff1f5; }
+.quick-depth { display: flex; align-items: center; gap: 9px; padding: 5px 0 14px; font-size: 12px; color: #765b69; }
+.quick-depth select { background: #fff7fa; border: 1px solid #e3ccd5; padding: 9px; border-radius: 8px; color: #87405b; font: inherit; flex: 1; min-width: 0; }
+.quick-depth button { font-size: 10px; color: var(--rose); padding: 6px 0; }
+.motion-button { display: block; font-size: 12px; border: 1px solid #dec2ce; border-radius: 8px; padding: 8px 12px; color: var(--rose); background: white; margin-bottom: 12px; }
+.motion-button[aria-pressed="true"] { background: #f2dce6; }
+@media (max-width: 420px) {
+  .face-comparison { padding: 0 10px; gap: 6px; }
+  .comparison-toolbar { margin-left: 12px; margin-right: 12px; }
+  .comparison-label { padding: 8px; }
+  .effect-readout { margin: 0 12px 14px; padding: 12px; }
+  .effect-state-heading strong { font-size: 13px; }
+  .dose-controls { padding: 16px; }
+  .face-comparison.is-zoomed .clinical-face-svg { height: 175px; }
+  .scenario-buttons button { font-size: 10px; }
+}

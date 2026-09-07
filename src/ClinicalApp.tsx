@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { ClinicalFace } from "./components/ClinicalFace";
 import { ClinicalSection } from "./components/ClinicalSection";
 import { CLINICAL_REGIONS, CLINICAL_SOURCES, LAYERS, TIMES } from "./data/clinical";
@@ -8,7 +8,7 @@ import "./styles/clinical.css";
 
 const INITIAL: ClinicalSettings = {
   region: "glabella", layer: "deep", corrugatorPart: "medial",
-  time: 14, expression: 75, exposure: false,
+  time: 14, expression: 85, exposure: true, amount: 100,
 };
 const VIEWS: { id: ClinicalView; name: string; icon: string }[] = [
   { id: "surface", name: "顔と変化", icon: "01" },
@@ -18,10 +18,12 @@ const VIEWS: { id: ClinicalView; name: string; icon: string }[] = [
 
 export default function ClinicalApp() {
   const [settings, setSettings] = useState<ClinicalSettings>(INITIAL);
-  const [view, setView] = useState<ClinicalView>("anatomy");
+  const [view, setView] = useState<ClinicalView>("surface");
   const [skin, setSkin] = useState(28);
   const [landmarks, setLandmarks] = useState(false);
-  const [before, setBefore] = useState(false);
+  const [zoom, setZoom] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const [motion, setMotion] = useState(1);
   const [atlas, setAtlas] = useState<"anterior" | "lateral">("anterior");
   const [compare, setCompare] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -33,12 +35,23 @@ export default function ClinicalApp() {
   const selectRegion = (id: ClinicalRegionId) => {
     const r = CLINICAL_REGIONS.find(item => item.id === id)!;
     setSettings(s => ({ ...s, region: id, layer: r.layer, corrugatorPart: "medial", exposure: false }));
-    setBefore(false);
+    setZoom(false);
     setCompare(false);
   };
   const reset = () => {
-    setSettings(INITIAL); setBefore(false); setCompare(false);
-    setSkin(28); setLandmarks(false); setView("anatomy");
+    setSettings(INITIAL); setZoom(false); setCompare(false);
+    setSkin(28); setLandmarks(false); setView("surface"); setPlaying(false); setMotion(1);
+  };
+  useEffect(() => {
+    if (!playing) { setMotion(1); return; }
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) { setPlaying(false); return; }
+    const start = performance.now();
+    const timer = window.setInterval(() => setMotion(.5 - .5 * Math.cos((performance.now() - start) / 600)), 40);
+    return () => window.clearInterval(timer);
+  }, [playing]);
+  const scenario = (amount: number) => {
+    change({ amount, layer: model.targetLayer, time: 14, exposure: true });
+    setView("surface");
   };
   return (
     <div className="clinical-app">
@@ -53,7 +66,7 @@ export default function ClinicalApp() {
 
       <nav className="clinical-view-nav" aria-label="モデルの表示">
         <div>{VIEWS.map(item => (
-          <button key={item.id} type="button" aria-pressed={view === item.id} onClick={() => { setView(item.id); setBefore(false); }}>
+          <button key={item.id} type="button" aria-pressed={view === item.id} onClick={() => { setView(item.id); setZoom(false); }}>
             <span>{item.icon}</span>{item.name}
           </button>
         ))}</div>
@@ -70,43 +83,82 @@ export default function ClinicalApp() {
         <div className="clinical-workspace">
           <section className="model-card" aria-label="顔面モデル">
             <div className="model-heading">
-              <div><span className="eyebrow-label">{view === "section" ? "TISSUE PLANES" : "FACIAL ANATOMY"}</span><h2>{view === "section" ? "針先の層を確かめる" : "見えているしわ、その下には。"}</h2></div>
+              <div><span className="eyebrow-label">{view === "section" ? "TISSUE PLANES" : "FACIAL ANATOMY"}</span><h2>{view === "section" ? "針先の層を確かめる" : view === "surface" ? "打つ前と後を、同じ表情で。" : "見えているしわ、その下には。"}</h2></div>
               <button className="quiet-button" type="button" onClick={reset}>リセット</button>
             </div>
             {view !== "section" ? (
               <>
-                <div className="face-stage">
-                  <div className="stage-tag">{view === "anatomy" ? "皮膚 ＋ 筋線維" : "表情の変化"}</div>
-                  <span className="stage-orientation">前面投影</span>
-                  <ClinicalFace settings={settings} relaxation={model.visualRelaxation} skin={skin}
-                    muscles={view === "anatomy"} landmarks={landmarks} before={before} onSelect={selectRegion} />
-                  <div className="selected-anatomy-label"><span className="tiny-line" /><strong>{region.muscles}</strong><span>{region.action}</span></div>
-                </div>
-            <p className="figure-caption">丸印は部位選択用。筋線維・矢印は走行と作用方向の模式表示です。</p>
-                {view === "anatomy" ? <div className="skin-control">
-                  <label htmlFor="skin-range">皮膚の重なり <span>{skin}%</span></label>
-                  <input id="skin-range" type="range" min="0" max="100" step="1" value={skin} onChange={e => setSkin(Number(e.target.value))} />
-                  <div className="range-ends"><span>筋肉を透かす</span><span>皮膚を残す</span></div>
-                </div> : <button type="button" className={"compare-toggle " + (before ? "is-active" : "")} aria-pressed={before} onClick={() => setBefore(!before)}>{before ? "経過表示に戻す" : "作用前と比較する"}</button>}
+                {view === "surface" ? <>
+                  <div className="comparison-toolbar">
+                    <span>同じ表情・同じ顔で比較</span>
+                    <button type="button" aria-pressed={zoom} onClick={() => setZoom(!zoom)}>{zoom ? "顔全体に戻す" : "部位を拡大"}</button>
+                  </div>
+                  <div className={"face-comparison " + (zoom ? "is-zoomed" : "")}>
+                    <div className="comparison-face"><div className="comparison-label"><span>BEFORE</span><strong>打つ前</strong></div>
+                      <ClinicalFace settings={settings} model={model} skin={100} muscles={false} landmarks={landmarks} before zoom={zoom} motion={motion} onSelect={selectRegion} />
+                      <span className="face-bottom-label">本来の動き</span>
+                    </div>
+                    <div className={"comparison-face current state-" + model.state}><div className="comparison-label"><span>AFTER · {phase.label}</span><strong>現在の条件</strong></div>
+                      <ClinicalFace settings={settings} model={model} skin={100} muscles={false} landmarks={landmarks} before={false} zoom={zoom} motion={motion} onSelect={selectRegion} />
+                      <span className="face-bottom-label">{model.visualRelaxation < .35 ? "動きが残る" : model.visualRelaxation < .85 ? "動きが弱まる" : "動きがごく小さい"}</span>
+                    </div>
+                  </div>
+                  <p className="figure-caption">変化を強調した模式表示。実際の仕上がりを予測するものではありません。</p>
+                </> : <>
+                  <div className="face-stage">
+                    <div className="stage-tag">皮膚 ＋ 筋線維</div><span className="stage-orientation">前面投影</span>
+                    <ClinicalFace settings={settings} model={model} skin={skin} muscles landmarks={landmarks} before={false} motion={motion} onSelect={selectRegion} />
+                    <div className="selected-anatomy-label"><span className="tiny-line" /><strong>{region.muscles}</strong><span>{region.action}</span></div>
+                  </div>
+                  <p className="figure-caption">丸印は部位選択用。筋の青紫色は作用の模式表示です。</p>
+                  <div className="skin-control">
+                    <label htmlFor="skin-range">皮膚の重なり <span>{skin}%</span></label>
+                    <input id="skin-range" type="range" min="0" max="100" step="1" value={skin} onChange={e => setSkin(Number(e.target.value))} />
+                    <div className="range-ends"><span>筋肉を透かす</span><span>皮膚を残す</span></div>
+                  </div>
+                </>}
                 <label className="check-row"><input type="checkbox" checked={landmarks} onChange={e => setLandmarks(e.target.checked)} />瞳孔線・眼窩上縁の位置関係を表示</label>
               </>
             ) : (
               <div className="large-section">
                 <p className="section-context">{region.muscles} <span>模式断面・実寸ではありません</span></p>
-                <ClinicalSection settings={settings} region={region} match={model.layerMatch} target={model.targetLayer} />
+                <ClinicalSection settings={settings} region={region} model={model} />
                 <p className="diagram-callout">{model.message}</p>
                 <button type="button" className="compare-toggle" aria-pressed={compare} onClick={() => setCompare(!compare)}>{compare ? "深度の比較を閉じる" : "浅い筋層と深い筋層を並べて比較"}</button>
                 {compare && <div className="section-comparison">{(["superficial", "deep"] as const).map(layer => {
                   const comparison = { ...settings, layer };
                   const result = evaluateClinicalModel(comparison);
-                  return <div key={layer}><h3>{layer === "superficial" ? "浅い筋層" : "深い筋層"}</h3><ClinicalSection settings={comparison} region={region} match={result.layerMatch} target={result.targetLayer} /><p>{getLayerMessage(comparison)}</p></div>;
+                  return <div key={layer}><h3>{layer === "superficial" ? "浅い筋層" : "深い筋層"}</h3><ClinicalSection settings={comparison} region={region} model={result} /><p>{getLayerMessage(comparison)}</p></div>;
                 })}</div>}
                 <div className="section-hint"><strong>深さの数字より、どの層にいるか。</strong><p>同じ刺入長でも、場所・皮下組織の厚さ・針の角度で針先の層は変わります。このモデルは共通のmm深度を定めません。</p></div>
               </div>
             )}
+            <div className={"effect-readout state-" + model.state} aria-live="polite" role="status">
+              <div className="effect-state-heading"><span className="effect-symbol">{model.state === "excess" || model.state === "spread" ? "!" : model.state === "relaxed" ? "↓" : "≈"}</span><strong>{model.title}</strong></div>
+              <p>{model.detail}</p>
+              <div className="movement-meter"><span>目的筋の動き</span><div className="movement-track" aria-hidden="true"><i style={{ width: (1 - model.visualRelaxation) * 100 + "%" }} /></div><b>{model.visualRelaxation < .35 ? "残る" : model.visualRelaxation < .85 ? "弱まる" : "ごく小さい"}</b></div>
+              {model.visualAdverse > .15 && <p className="adverse-observation">{model.observation}</p>}
+            </div>
+            <div className="dose-controls">
+              <div className="dose-heading"><label htmlFor="amount-range">注入量を変える <small>教材内の相対量</small></label><output htmlFor="amount-range">{settings.amount}<span> / 200</span></output></div>
+              <input id="amount-range" type="range" min="0" max="200" step="5" value={settings.amount} onChange={e => change({ amount: Number(e.target.value) })} />
+              <div className="range-ends"><span>0 · 作用なし</span><span>少ない ← → 多い</span><span>200</span></div>
+              <p className="dose-note">U・mLではありません。100も適量・安全量を意味しません。</p>
+              <div className="scenario-buttons" aria-label="量の比較シナリオ">
+                <button type="button" onClick={() => scenario(25)}>効きにくい例</button>
+                <button type="button" onClick={() => scenario(100)}>動きが弱まる例</button>
+                <button type="button" onClick={() => scenario(190)}>効きすぎの例</button>
+              </div>
+              <p className="scenario-hint">例のボタンは目的筋の層・2週に切り替えます。</p>
+              <label className="quick-depth">深度を比較<select aria-label="比較する針先の層" value={settings.layer} onChange={e => change({ layer: e.target.value as ClinicalSettings["layer"] })}>{LAYERS.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}</select><button type="button" onClick={() => setView("section")}>断面を見る ↗</button></label>
+              <button type="button" className={"exposure-button " + (settings.exposure ? "is-on" : "")} aria-pressed={settings.exposure} onClick={() => change({ exposure: !settings.exposure })}>
+                <span className="switch-indicator" />{settings.exposure ? "注入後の変化を表示中" : "この条件で打った変化を見る"}
+              </button>
+            </div>
             <div className="expression-control">
+              <button type="button" className="motion-button" aria-pressed={playing} onClick={() => setPlaying(!playing)}>{playing ? "Ⅱ 動きを止める" : "▷ 表情をくり返す"}</button>
               <label htmlFor="expression-range">表情を動かす <strong>{settings.expression === 0 ? "安静" : settings.expression < 50 ? "軽い動き" : "強い動き"}</strong></label>
-              <input id="expression-range" type="range" min="0" max="100" value={settings.expression} onChange={e => change({ expression: Number(e.target.value) })} />
+              <input id="expression-range" type="range" min="0" max="100" value={settings.expression} onChange={e => { setPlaying(false); change({ expression: Number(e.target.value) }); }} />
               <div className="range-ends"><span>安静</span><span>{region.id === "masseter" ? "噛みしめる" : region.id === "glabella" ? "眉を寄せる" : "動かす"}</span></div>
             </div>
           </section>
@@ -128,19 +180,15 @@ export default function ClinicalApp() {
               <div className="layer-buttons" aria-label="針先の層">
                 {LAYERS.map(layer => <button key={layer.id} type="button" aria-pressed={settings.layer === layer.id} onClick={() => change({ layer: layer.id })}>{layer.name}<span>{layer.short}</span></button>)}
               </div>
-              {view !== "section" && <ClinicalSection settings={settings} region={region} match={model.layerMatch} target={model.targetLayer} />}
+              {view !== "section" && <ClinicalSection settings={settings} region={region} model={model} />}
               <p className="layer-explanation" aria-live="polite">{getLayerMessage(settings)}</p>
             </div>
 
             <div className="time-controls">
               <div className="control-title"><span className="step-number">2</span><h3>作用の経過を見る</h3></div>
-              <button type="button" className={"exposure-button " + (settings.exposure ? "is-on" : "")} aria-pressed={settings.exposure} onClick={() => { change({ exposure: !settings.exposure }); setBefore(false); }}>
-                <span className="switch-indicator" />{settings.exposure ? "作用のイメージ ON" : "作用のイメージを重ねる"}
-              </button>
               <div className="time-buttons" aria-label="投与後の経過シナリオ">{TIMES.map(t => <button key={t.day} type="button" aria-pressed={settings.time === t.day} onClick={() => change({ time: t.day })}>{t.label}</button>)}</div>
               <div className="phase-note" aria-live="polite"><strong>{phase.title}</strong><p>{phase.note}</p></div>
-              {settings.exposure && !model.layerMatch && <p className="model-state">選択した層からの筋作用を予測できないため、表情変化は描画していません。</p>}
-              {settings.exposure && model.layerMatch && <p className="model-state">色・動き・しわの変化は、作用を説明する教材表現です。</p>}
+              <p className="model-state">量・深度・経過で変わる教材シナリオ。色・変形・棒の長さは臨床的な効力や発生確率ではありません。</p>
             </div>
           </section>
         </div>
@@ -148,10 +196,10 @@ export default function ClinicalApp() {
         <section className="learning-row">
           <div className="mechanism-card">
             <span className="eyebrow-label">HOW IT WORKS · 筋内で作用する場合</span><h2>筋肉への指令が、届きにくくなる。</h2>
-            <div className={"signal-diagram " + (settings.exposure && settings.time !== 0 ? "signal-reduced" : "")} aria-label="神経終末でアセチルコリンの放出が抑えられ、筋活動が弱まる仕組み">
-              <div className="signal-node"><span>運動神経終末</span><strong>SNAP-25</strong><small>{settings.exposure && settings.time !== 0 ? "毒素が切断" : "小胞の放出に関与"}</small></div>
-              <div className="signal-path"><span>アセチルコリン</span><i /><i /><i /><i /><i /><small>{settings.exposure && settings.time !== 0 ? "放出が抑制される" : "放出 → 筋へ伝達"}</small></div>
-              <div className="signal-node muscle-node"><span>筋線維</span><strong>{settings.exposure && settings.time !== 0 ? "活動が弱まる" : "収縮する"}</strong><small>神経筋接合部</small></div>
+            <div className={"signal-diagram " + (model.visualRelaxation > .15 ? "signal-reduced" : "")} aria-label="神経終末でアセチルコリンの放出が抑えられ、筋活動が弱まる仕組み">
+              <div className="signal-node"><span>運動神経終末</span><strong>SNAP-25</strong><small>{model.visualRelaxation > .15 ? "毒素が切断" : "小胞の放出に関与"}</small></div>
+              <div className="signal-path"><span>アセチルコリン</span><i /><i /><i /><i /><i /><small>{model.visualRelaxation > .15 ? "放出が抑制される" : "放出 → 筋へ伝達"}</small></div>
+              <div className="signal-node muscle-node"><span>筋線維</span><strong>{model.visualRelaxation > .15 ? "活動が弱まる" : "収縮する"}</strong><small>神経筋接合部</small></div>
             </div>
             <p>筋肉を埋めたり、しわを直接消したりする作用ではありません。神経筋伝達が弱まることで、表情の動きが変わります。安静時のしわは残ることがあります。</p>
             <a href={CLINICAL_SOURCES.mechanism.url} target="_blank" rel="noreferrer">作用機序の出典 ↗</a>
@@ -175,10 +223,11 @@ export default function ClinicalApp() {
           </div>
         </details>
         <details className="evidence-details">
-          <summary>出典とモデルの範囲 <span>確認日 2026.09.06</span></summary>
+          <summary>出典とモデルの範囲 <span>確認日 2026.09.07</span></summary>
           <div>
             <p>＊国内適応の表示はボトックスビスタの電子添文に基づき、65歳未満の成人における対象適応を指します。その他の部位は解剖学習として表示しています。製剤間で単位を換算しません。</p>
             <p>顔は既存のイラストを用いた前面投影、深度は相対層の模式断面です。患者のCT・MRI・超音波に基づく3Dモデルではありません。しわ・筋線維の変化は説明用で、臨床データに適合した効果曲線や副作用確率ではありません。</p>
+            <p>量の0–200は教材内の相対量で、U・mL・安全量ではありません。量・深度と表示の対応は説明用の設定です。少量なら副作用が起きない、層が合えば安全、という判定には使えません。</p>
             <ul>{Object.values(CLINICAL_SOURCES).map(s => <li key={s.url}><a href={s.url} target="_blank" rel="noreferrer">{s.title} ↗</a><span>{s.detail}</span></li>)}</ul>
           </div>
         </details>

@@ -1,11 +1,13 @@
 import { useId } from "react";
 import { LAYERS } from "../data/clinical";
-import type { ClinicalLayer, ClinicalRegion, ClinicalSettings } from "../types/botox";
+import type { ClinicalLayer, ClinicalModelResult, ClinicalRegion, ClinicalSettings } from "../types/botox";
 
-interface Props { settings: ClinicalSettings; region: ClinicalRegion; match: boolean; target: ClinicalLayer; }
+interface Props { settings: ClinicalSettings; region: ClinicalRegion; model: ClinicalModelResult; }
 const Y: Record<ClinicalLayer, number> = { dermis: 71, subcutaneous: 112, superficial: 153, deep: 204 };
 
-export function ClinicalSection({ settings, region, match, target }: Props) {
+export function ClinicalSection({ settings, region, model }: Props) {
+  const { targetLayer: target, layerMatch: match } = model;
+  const halo = Math.max(0, Math.min(200, settings.amount)) / 200;
   const id = useId().replace(/:/g, "");
   const corrugator = region.id === "glabella";
   const masseter = region.id === "masseter";
@@ -38,10 +40,11 @@ export function ClinicalSection({ settings, region, match, target }: Props) {
       <text x="303" y="247" fontSize="12" fill="#8b7e70">深部の支持組織</text>
       {masseter && <text x="42" y="190" fontSize="11" fill="#5e3734">筋内腱の模式位置</text>}
       {corrugator && <text x="39" y="145" fontSize="10" fill="#704b41">表層の筋</text>}
-      {settings.exposure && <g opacity=".45">
-        <ellipse cx={tipX} cy={tipY} rx="27" ry="19" fill="none" stroke="#7b6593" strokeWidth="1.5" strokeDasharray="4 3" />
-        {match && <ellipse cx={tipX} cy={tipY} rx="43" ry="28" fill="#7b6593" opacity=".5" clipPath={"url(#" + id + "-muscle)"} />}
+      {settings.exposure && settings.amount > 0 && <g opacity=".65" data-dose-halo={settings.amount}>
+        <ellipse cx={tipX} cy={tipY} rx={13 + halo * 36} ry={9 + halo * 28} fill="none" stroke={model.visualAdverse > .15 ? "#c84c66" : "#7b6593"} strokeWidth="1.5" strokeDasharray="4 3" />
+        {match && model.visualRelaxation > 0 && <ellipse cx={tipX} cy={tipY} rx={18 + halo * 60} ry={12 + halo * 38} fill="#7b6593" opacity={model.visualRelaxation * .7} clipPath={"url(#" + id + "-muscle)"} />}
       </g>}
+      {settings.exposure && settings.amount > 0 && <text x="23" y="42" fontSize="10" fill="#84556b">相対量 {settings.amount} · 輪郭は分布の例（拡散距離ではありません）</text>}
       <path d={"M" + (tipX - 22) + " 30 L" + tipX + " " + tipY} stroke="#647480" strokeWidth="3.5" strokeLinecap="round" />
       <path d={"M" + (tipX - 21) + " 30 L" + (tipX + 1) + " " + (tipY - 3)} stroke="white" strokeWidth="1" />
       <circle cx={tipX} cy={tipY} r="5" fill="#a43e5e" stroke="#fff" strokeWidth="1.5" />

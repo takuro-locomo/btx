@@ -334,11 +334,21 @@ export interface ClinicalSettings {
   time: ClinicalTime;
   expression: number;
   exposure: boolean;
+  /** Unitless teaching control, 0–200. Not U, mL or a recommended dose. */
+  amount: number;
 }
+export type ClinicalEffectState = "off" | "immediate" | "under" | "relaxed" | "excess" | "spread";
+export type ClinicalAdverse = "none" | "brow" | "eyelid" | "closure" | "smile" | "lip" | "lowerLip" | "bulge" | "neck";
 export interface ClinicalModelResult {
   targetLayer: ClinicalLayer;
   layerMatch: boolean;
   message: string;
   /** Display-only coefficient; never render as a clinical percentage. */
   visualRelaxation: number;
+  visualAdverse: number;
+  adverse: ClinicalAdverse;
+  state: ClinicalEffectState;
+  title: string;
+  detail: string;
+  observation: string;
 }
