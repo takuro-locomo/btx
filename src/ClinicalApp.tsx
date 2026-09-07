@@ -1,7 +1,6 @@
 import { useEffect, useId, useState } from "react";
 import { ClinicalFace } from "./components/ClinicalFace";
 import { ClinicalSection } from "./components/ClinicalSection";
-import { VistaDosePanel } from "./components/VistaDosePanel";
 import { CLINICAL_REGIONS, CLINICAL_SOURCES, LAYERS, TIMES } from "./data/clinical";
 import { evaluateClinicalModel, getLayerMessage } from "./engine/clinical";
 import type { ClinicalRegionId, ClinicalSettings, ClinicalView } from "./types/botox";
@@ -18,7 +17,6 @@ const VIEWS: { id: ClinicalView; name: string; icon: string }[] = [
 ];
 
 export default function ClinicalApp() {
-  const [doseReset, setDoseReset] = useState(0);
   const [settings, setSettings] = useState<ClinicalSettings>(INITIAL);
   const [view, setView] = useState<ClinicalView>("surface");
   const [skin, setSkin] = useState(28);
@@ -41,7 +39,6 @@ export default function ClinicalApp() {
     setCompare(false);
   };
   const reset = () => {
-    setDoseReset(value => value + 1);
     setSettings(INITIAL); setZoom(false); setCompare(false);
     setSkin(28); setLandmarks(false); setView("surface"); setPlaying(false); setMotion(1);
   };
@@ -83,7 +80,6 @@ export default function ClinicalApp() {
             </button>
           ))}
         </div>
-        <a className="vista-shortcut" href="#vista-dose"><strong>ボトックスビスタ</strong><span>U・濃度・注入量mLを計算 ↓</span></a>
         <div className="clinical-workspace">
           <section className="model-card" aria-label="顔面モデル">
             <div className="model-heading">
@@ -102,12 +98,12 @@ export default function ClinicalApp() {
                       <ClinicalFace settings={settings} model={model} skin={100} muscles={false} landmarks={landmarks} before zoom={zoom} motion={motion} onSelect={selectRegion} />
                       <span className="face-bottom-label">本来の動き</span>
                     </div>
-                    <div className={"comparison-face current state-" + model.state}><div className="comparison-label"><span>AFTER · {phase.label}</span><strong>教材の作用例</strong></div>
+                    <div className={"comparison-face current state-" + model.state}><div className="comparison-label"><span>AFTER · {phase.label}</span><strong>現在の条件</strong></div>
                       <ClinicalFace settings={settings} model={model} skin={100} muscles={false} landmarks={landmarks} before={false} zoom={zoom} motion={motion} onSelect={selectRegion} />
                       <span className="face-bottom-label">{model.visualRelaxation < .35 ? "動きが残る" : model.visualRelaxation < .85 ? "動きが弱まる" : "動きがごく小さい"}</span>
                     </div>
                   </div>
-                  <p className="figure-caption">顔は教材の作用例です。U・mLの計算から予測した顔ではありません。</p>
+                  <p className="figure-caption">変化を強調した模式表示。実際の仕上がりを予測するものではありません。</p>
                 </> : <>
                   <div className="face-stage">
                     <div className="stage-tag">皮膚 ＋ 筋線維</div><span className="stage-orientation">前面投影</span>
@@ -144,11 +140,8 @@ export default function ClinicalApp() {
               {model.visualAdverse > .15 && <p className="adverse-observation">{model.observation}</p>}
             </div>
             <div className="dose-controls">
-              <div className="dose-heading"><label htmlFor="amount-range">教材の作用表現 <small>U・mLの計算とは独立した比較</small></label><output htmlFor="amount-range">{settings.amount}<span> / 200</span></output></div>
-              <input id="amount-range" type="range" min="0" max="200" step="5" value={settings.amount} onChange={e => change({ amount: Number(e.target.value) })} />
-              <div className="range-ends"><span>0 · 作用なし</span><span>少ない ← → 多い</span><span>200</span></div>
-              <p className="dose-note">この数値は顔の教材表現のための設定です。実際のUへ換算しません。</p>
-              <div className="scenario-buttons" aria-label="量の比較シナリオ">
+              <h3 className="effect-choice-title">効き方を比べる</h3>
+              <div className="scenario-buttons" aria-label="効き方の比較">
                 <button type="button" onClick={() => scenario(25)}>効きにくい例</button>
                 <button type="button" onClick={() => scenario(100)}>動きが弱まる例</button>
                 <button type="button" onClick={() => scenario(190)}>効きすぎの例</button>
@@ -168,7 +161,6 @@ export default function ClinicalApp() {
           </section>
 
           <section className="clinical-controls" aria-labelledby={detailId}>
-            <div id="vista-dose"><VistaDosePanel key={region.id + "-" + doseReset} regionId={region.id} /></div>
             <div className="region-detail">
               <div className="detail-topline"><span className="eyebrow-label">{region.english}</span><span className={"indication " + (region.approved ? "approved" : "")}>{region.approved ? "国内適応あり＊" : "解剖学習"}</span></div>
               <h2 id={detailId}>{region.name}<span>{region.muscles}</span></h2>
@@ -193,7 +185,7 @@ export default function ClinicalApp() {
               <div className="control-title"><span className="step-number">2</span><h3>作用の経過を見る</h3></div>
               <div className="time-buttons" aria-label="投与後の経過シナリオ">{TIMES.map(t => <button key={t.day} type="button" aria-pressed={settings.time === t.day} onClick={() => change({ time: t.day })}>{t.label}</button>)}</div>
               <div className="phase-note" aria-live="polite"><strong>{phase.title}</strong><p>{phase.note}</p></div>
-              <p className="model-state">量・深度・経過で変わる教材シナリオ。色・変形・棒の長さは臨床的な効力や発生確率ではありません。</p>
+              <p className="model-state">深度・経過・効き方を比較する教材です。色・変形・棒の長さは臨床的な効力や発生確率ではありません。</p>
             </div>
           </section>
         </div>
@@ -232,7 +224,7 @@ export default function ClinicalApp() {
           <div>
             <p>＊国内適応の表示はボトックスビスタの電子添文に基づき、65歳未満の成人における対象適応を指します。その他の部位は解剖学習として表示しています。製剤間で単位を換算しません。</p>
             <p>顔は既存のイラストを用いた前面投影、深度は相対層の模式断面です。患者のCT・MRI・超音波に基づく3Dモデルではありません。しわ・筋線維の変化は説明用で、臨床データに適合した効果曲線や副作用確率ではありません。</p>
-            <p>U・mL計算にはボトックスビスタ固有の単位を用います。顔の0–200は独立した教材表現です。国内試験の改善例の割合は集団データで、個人の予測値ではありません。少量なら副作用が起きない、層が合えば安全、という判定は行いません。</p>
+            <p>顔の変化は、選んだ効き方・深度・経過を説明する教材の例です。個人の効果や安全性を予測するものではありません。</p>
             <ul>{Object.values(CLINICAL_SOURCES).map(s => <li key={s.url}><a href={s.url} target="_blank" rel="noreferrer">{s.title} ↗</a><span>{s.detail}</span></li>)}</ul>
           </div>
         </details>

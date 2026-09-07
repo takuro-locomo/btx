@@ -44,7 +44,7 @@ export function ClinicalSection({ settings, region, model }: Props) {
         <ellipse cx={tipX} cy={tipY} rx={13 + halo * 36} ry={9 + halo * 28} fill="none" stroke={model.visualAdverse > .15 ? "#c84c66" : "#7b6593"} strokeWidth="1.5" strokeDasharray="4 3" />
         {match && model.visualRelaxation > 0 && <ellipse cx={tipX} cy={tipY} rx={18 + halo * 60} ry={12 + halo * 38} fill="#7b6593" opacity={model.visualRelaxation * .7} clipPath={"url(#" + id + "-muscle)"} />}
       </g>}
-      {settings.exposure && settings.amount > 0 && <text x="23" y="42" fontSize="10" fill="#84556b">相対量 {settings.amount} · 輪郭は分布の例（拡散距離ではありません）</text>}
+      {settings.exposure && settings.amount > 0 && <text x="23" y="42" fontSize="10" fill="#84556b">輪郭は作用範囲の例（拡散距離ではありません）</text>}
       <path d={"M" + (tipX - 22) + " 30 L" + tipX + " " + tipY} stroke="#647480" strokeWidth="3.5" strokeLinecap="round" />
       <path d={"M" + (tipX - 21) + " 30 L" + (tipX + 1) + " " + (tipY - 3)} stroke="white" strokeWidth="1" />
       <circle cx={tipX} cy={tipY} r="5" fill="#a43e5e" stroke="#fff" strokeWidth="1.5" />

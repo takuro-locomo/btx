@@ -52,13 +52,13 @@ export function evaluateClinicalModel(settings: ClinicalSettings): ClinicalModel
     under: "効きにくい例：動きが残る", relaxed: "作用の例：動きが弱まる",
     excess: "効きすぎ・波及が起きた例", spread: "目的筋には乏しく、周辺に波及した例",
   }[state];
-  const detail = state === "off" ? amount === 0 ? "量が0のため、作用前と同じ顔です。" : "量と深度を選び、下のボタンで注入後の変化を表示します。"
+  const detail = state === "off" ? amount === 0 ? "作用前と同じ顔を表示しています。" : "効き方の例と深度を選び、下のボタンで変化を表示します。"
     : state === "immediate" ? "針先の周囲に色があっても、薬理作用による筋弛緩はまだ示しません。"
     : !layerMatch ? settings.layer === "dermis"
       ? "この教材では皮内からの筋弛緩を描画しません。臨床的に無効という判定ではありません。"
       : "しわ・目的筋の動きが残るシナリオ。層外からの作用や波及の程度は実際には予測できません。"
     : state === "excess" ? "しわの減少に加え、目的筋の過度な弱まりや周囲の機能への影響を強調しています。"
-    : state === "under" ? "現在の量・経過の教材設定では、作用前に近い動きが残ります。"
+    : state === "under" ? "この例では、作用前に近い動きが残ります。"
     : "表情をつくる力が弱まり、動いたときのしわや形の変化が小さくなる例です。";
   return { targetLayer, layerMatch, message, visualRelaxation, visualAdverse, adverse, state, title, detail, observation: OBSERVATION[adverse] };
 }
