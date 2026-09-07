@@ -355,9 +355,17 @@ export interface ClinicalModelResult {
 
 // Patient consultation content. No dose or probability fields.
 export type PatientExample = "expected" | "limited" | "adverse";
+export type PatientConcernId = ClinicalRegionId | "micro";
 export interface PatientTreatmentArea { x: number; y: number; rx: number; ry: number }
+export interface PatientPrice { yen: number; scope: string; discount?: number; source?: string }
+export interface PatientTreatmentVariant {
+  id: string;
+  label: string;
+  price: PatientPrice;
+  areas: PatientTreatmentArea[];
+}
 export interface PatientConcern {
-  id: ClinicalRegionId;
+  id: PatientConcernId;
   label: string;
   shortName: string;
   treatment: string;
@@ -367,7 +375,9 @@ export interface PatientConcern {
   afterCaption: string;
   limitation: string;
   timing: string;
-  price: null | { yen: number; scope: string; discount?: number; source: string };
+  price: PatientPrice | null;
+  variants?: [PatientTreatmentVariant, ...PatientTreatmentVariant[]];
+  availability?: string;
   risks: string[];
   adverse: ClinicalAdverse;
   adverseCaption: string;

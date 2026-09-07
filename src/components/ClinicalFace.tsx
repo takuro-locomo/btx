@@ -39,20 +39,33 @@ interface Props {
   onSelect: (id: ClinicalRegionId) => void;
   treatmentAreas?: PatientTreatmentArea[];
   accessibleLabel?: string;
+  skinAreas?: PatientTreatmentArea[];
 }
-export function ClinicalFace({ settings, model, skin, muscles, landmarks, before, onSelect, zoom = false, motion = 1, treatmentAreas, accessibleLabel }: Props) {
+export function ClinicalFace({ settings, model, skin, muscles, landmarks, before, onSelect, zoom = false, motion = 1, treatmentAreas, accessibleLabel, skinAreas }: Props) {
   const uid = useId().replace(/:/g, "");
   const includeNeck = settings.region === "neck";
   const expression = settings.expression / 100 * motion;
   const active = (before ? 1 : 1 - model.visualRelaxation) * expression;
+  const skinIntensity = before ? 1 : 1 - model.visualRelaxation;
+  let skinViewBox = "138 85 124 190";
+  if (skinAreas?.length) {
+    const left = Math.min(...skinAreas.map(p => p.x - p.rx)) - 9;
+    const top = Math.min(...skinAreas.map(p => p.y - p.ry)) - 9;
+    const right = Math.max(...skinAreas.map(p => p.x + p.rx)) + 9;
+    const bottom = Math.max(...skinAreas.map(p => p.y + p.ry)) + 9;
+    skinViewBox = `${left} ${top} ${right - left} ${bottom - top}`;
+  }
   const focus: Record<ClinicalRegionId, string> = {
     forehead: "130 85 140 90", glabella: "130 122 140 66", eyes: "130 139 140 55",
     bunny: "169 176 62 72", gummy: "167 205 66 53", lips: "167 215 66 45",
     dao: "153 217 94 58", chin: "167 235 66 43", masseter: "125 196 150 70", neck: "151 275 98 75",
   };
   return (
-    <svg role="img" viewBox={zoom ? focus[settings.region] : includeNeck ? "120 58 164 296" : "120 58 164 224"} className="clinical-face-svg" data-face={before ? "before" : "after"} data-relaxation={before ? 0 : model.visualRelaxation} aria-label={accessibleLabel ?? (before ? "作用前" : "現在の条件") + "の顔面モデル。変化を強調した模式表示"}>
+    <svg role="img" viewBox={zoom ? skinAreas ? skinViewBox : focus[settings.region] : includeNeck ? "120 58 164 296" : "120 58 164 224"} className="clinical-face-svg" data-face={before ? "before" : "after"} data-relaxation={before ? 0 : model.visualRelaxation} aria-label={accessibleLabel ?? (before ? "作用前" : "現在の条件") + "の顔面モデル。変化を強調した模式表示"}>
       <defs>
+        <pattern id={uid + "-pores"} width="4.2" height="4.2" patternUnits="userSpaceOnUse">
+          <ellipse cx="2" cy="2" rx={.35 + skinIntensity * .45} ry={.45 + skinIntensity * .55} fill="#a87660" fillOpacity={.15 + skinIntensity * .5} />
+        </pattern>
         <clipPath id={uid + "-face"}><rect x="120" y="58" width="164" height="296" /></clipPath>
         {MUSCLES.map((m, i) => (
           <pattern key={m.id} id={uid + "-fib-" + m.id} width="2.6" height="5" patternUnits="userSpaceOnUse" patternTransform={"rotate(" + m.rotation + ")"}>
@@ -63,7 +76,16 @@ export function ClinicalFace({ settings, model, skin, muscles, landmarks, before
         ))}
       </defs>
       <image href="/face-clean.png" x="0" y="0" width="398" height="400" clipPath={"url(#" + uid + "-face)"} />
-      <ClinicalFeatures settings={settings} model={model} before={before} motion={motion} />
+      {!skinAreas && <ClinicalFeatures settings={settings} model={model} before={before} motion={motion} />}
+      {skinAreas && <g data-skin-example="micro" data-intensity={skinIntensity} pointerEvents="none">
+        {skinAreas.map((p, i) => <g key={i}>
+          <ellipse cx={p.x} cy={p.y} rx={p.rx} ry={p.ry} fill={"url(#" + uid + "-pores)"} />
+          <ellipse cx={p.x - p.rx * .25} cy={p.y - p.ry * .25} rx={p.rx * .35} ry={p.ry * .6} fill="white" opacity={skinIntensity * .42} />
+        </g>)}
+        {!before && model.visualAdverse > 0 && skinAreas.slice(0, 1).map(p => <g key="bruising" data-feature="skin-bruising" fill="#936381" fillOpacity=".52">
+          <ellipse cx={p.x - 4} cy={p.y + 4} rx="3.2" ry="2.4" /><ellipse cx={p.x + 4} cy={p.y - 3} rx="2.1" ry="2.8" />
+        </g>)}
+      </g>}
       {muscles && (
         <g opacity={(100 - skin) / 100} className="muscle-overlay" aria-label="筋の位置関係の模式表示">
           {/* Adjacent zygomaticus and DLI are muted context, not treatment targets. */}
@@ -82,7 +104,7 @@ export function ClinicalFace({ settings, model, skin, muscles, landmarks, before
         </g>
       )}
       {/* Static skin changes remain at rest; animation never claims complete removal. */}
-      {Object.entries(WRINKLES).map(([id, paths]) => (
+      {!skinAreas && Object.entries(WRINKLES).map(([id, paths]) => (
         <g key={id} fill="none" stroke="#946859" strokeWidth={id === settings.region ? .75 + active * 1.1 : .6} strokeLinecap="round"
           opacity={id === settings.region ? .09 + active * .85 : .06}
           style={{ transition: "opacity .45s" }}>
@@ -110,7 +132,7 @@ export function ClinicalFace({ settings, model, skin, muscles, landmarks, before
         <path d="M173 84 V272 M228 84 V272" />
         <text x="125" y="80" fontSize="5.4" fill="#42616c" stroke="none">瞳孔線・眼窩上縁の概念位置</text>
       </g>}
-      {treatmentAreas && <g data-treatment-area={settings.region} fill="#d74278" fillOpacity=".2" stroke="#b5265c" strokeWidth=".9" strokeDasharray="2 1.4" pointerEvents="none">
+      {treatmentAreas && <g data-treatment-area={skinAreas ? "micro" : settings.region} fill="#d74278" fillOpacity=".2" stroke="#b5265c" strokeWidth=".9" strokeDasharray="2 1.4" pointerEvents="none">
         {treatmentAreas.map((p, i) => <ellipse key={i} cx={p.x} cy={p.y} rx={p.rx} ry={p.ry} />)}
       </g>}
       {!before && muscles && CLINICAL_REGIONS.filter(r => includeNeck || r.id !== "neck").map(r => r.points.map((p, i) => {

@@ -52,10 +52,17 @@ export default function PatientApp() {
   const [selected, setSelected] = useState(PATIENT_CONCERNS[0]);
   const [example, setExample] = useState<PatientExample>("expected");
   const [zoom, setZoom] = useState(false);
+  const [variantId, setVariantId] = useState("");
   const resultRef = useRef<HTMLElement>(null);
+  const variant =
+    selected.variants?.find((item) => item.id === variantId) ??
+    selected.variants?.[0];
+  const price = variant?.price ?? selected.price;
+  const treatmentAreas = variant?.areas ?? selected.areas;
+  const micro = selected.id === "micro";
   // Fixed schematic drawing settings. The clinical dose/depth engine is not used.
   const settings: ClinicalSettings = {
-    region: selected.id,
+    region: selected.id === "micro" ? "bunny" : selected.id,
     layer: "superficial",
     corrugatorPart: "medial",
     time: 14,
@@ -79,12 +86,15 @@ export default function PatientApp() {
     example === "adverse"
       ? selected.adverseCaption
       : example === "limited"
-        ? "しわや筋肉の動きが残る例"
+        ? micro
+          ? "毛穴の目立ち・テカリが残る例"
+          : "しわや筋肉の動きが残る例"
         : selected.afterCaption;
   function chooseConcern(concern: PatientConcern) {
     setSelected(concern);
     setExample("expected");
     setZoom(false);
+    setVariantId("");
     if (window.innerWidth < 860)
       resultRef.current?.scrollIntoView?.({
         behavior: "instant",
@@ -99,6 +109,7 @@ export default function PatientApp() {
     landmarks: false,
     zoom,
     onSelect: () => undefined,
+    skinAreas: micro ? treatmentAreas : undefined,
   };
 
   return (
@@ -181,6 +192,31 @@ export default function PatientApp() {
               </div>
             </div>
 
+            {selected.variants && (
+              <fieldset className="patient-variants">
+                <legend>
+                  施術範囲を選ぶ <span>料金は税込</span>
+                </legend>
+                <div>
+                  {selected.variants.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      aria-pressed={variant?.id === item.id}
+                      onClick={() => {
+                        setVariantId(item.id);
+                        setExample("expected");
+                      }}
+                    >
+                      <span>{item.label}</span>
+                      <strong>{yen(item.price.yen)}</strong>
+                    </button>
+                  ))}
+                </div>
+                <p>{selected.availability}</p>
+              </fieldset>
+            )}
+
             <section
               className={
                 "patient-comparison " +
@@ -221,9 +257,9 @@ export default function PatientApp() {
                   <ClinicalFace
                     {...faceProps}
                     before
-                    treatmentAreas={selected.areas}
+                    treatmentAreas={treatmentAreas}
                     accessibleLabel={
-                      selected.shortName +
+                      (variant?.label ?? selected.shortName) +
                       "の施術前。ピンクは施術を検討するおおよその範囲"
                     }
                   />
@@ -271,7 +307,9 @@ export default function PatientApp() {
               </p>
               {example === "limited" && (
                 <p className="patient-example-message" role="status">
-                  期待した変化が得られないこともあります。原因や筋肉の動きなどにより、しわや症状が残る場合があります。
+                  {micro
+                    ? "毛穴の目立ちやテカリが、期待したほど変わらない場合もあります。肌の状態や原因によって、変化の感じ方は異なります。"
+                    : "期待した変化が得られないこともあります。原因や筋肉の動きなどにより、しわや症状が残る場合があります。"}
                 </p>
               )}
               {example === "adverse" && (
@@ -289,32 +327,35 @@ export default function PatientApp() {
               >
                 <p className="patient-card-number">02 / 料金</p>
                 <h3 id="price-heading">費用の目安</h3>
-                {selected.price ? (
+                {price ? (
                   <>
                     <p className="patient-price" data-testid="treatment-price">
-                      {yen(selected.price.yen)}
+                      {yen(price.yen)}
                       <span>税込</span>
                     </p>
                     <p className="patient-price-scope">
-                      {selected.price.scope}の施術料金
+                      {price.scope}の施術料金
                     </p>
-                    {selected.price.discount && (
+                    {price.discount && (
                       <div className="patient-discount">
                         <span>金・土の対象日</span>
                         <strong>
-                          {yen(selected.price.discount)}
+                          {yen(price.discount)}
                           <small>税込</small>
                         </strong>
                         <p>2026年10月から月曜も対象</p>
                       </div>
                     )}
-                    <a
-                      href={selected.price.source}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      医院の料金案内を確認 ↗
-                    </a>
+                    {selected.availability && (
+                      <p className="patient-availability">
+                        {selected.availability}
+                      </p>
+                    )}
+                    {price.source && (
+                      <a href={price.source} target="_blank" rel="noreferrer">
+                        医院の料金案内を確認 ↗
+                      </a>
+                    )}
                   </>
                 ) : (
                   <>
@@ -396,7 +437,7 @@ export default function PatientApp() {
           <details>
             <summary>使用薬剤・料金の出典について</summary>
             <p>
-              上野医院の公式案内をもとに、2026年9月7日に確認した内容を掲載しています。使用薬剤はニューロノックスで、掲載額はボトックスビスタの料金ではありません。
+              上野医院の公式案内と医院からの料金指定をもとに、2026年9月7日に確認した内容を掲載しています。使用薬剤はニューロノックスで、掲載額はボトックスビスタの料金ではありません。
             </p>
             <p>
               ニューロノックスは国内未承認の医薬品です。医院の案内では、国内代理店を経て医師が個人輸入しています。国内承認製剤にボトックスビスタ等があります。未承認薬は医薬品副作用被害救済制度の対象外です。

@@ -42,7 +42,7 @@ function price() {
 
 describe("Patient consultation", () => {
   it("shows the four requested answers without dose, depth or concentration controls", () => {
-    expect(container.querySelectorAll(".concern-button")).toHaveLength(10);
+    expect(container.querySelectorAll(".concern-button")).toHaveLength(11);
     expect(
       container.querySelector('[data-treatment-area="glabella"]'),
     ).not.toBeNull();
@@ -80,9 +80,14 @@ describe("Patient consultation", () => {
     }
   });
   it("does not carry a one-area discount into jaw, gummy or unconfirmed prices", () => {
+    choose("bunny");
     expect(container.querySelector(".patient-discount")?.textContent).toContain(
       "11,000円",
     );
+    expect(price()).toContain("17,600円");
+    choose("dao");
+    expect(price()).toContain("33,000円");
+    expect(container.querySelector(".patient-discount")).toBeNull();
     choose("masseter");
     expect(price()).toContain("52,800円");
     expect(container.querySelector(".patient-discount")).toBeNull();
@@ -141,5 +146,53 @@ describe("Patient consultation", () => {
     );
     click("期待できる変化");
     expect(afterFace()).not.toBeNull();
+  });
+  it("links microbotox scope to its price and skin illustration, clearing side effects on a new scope", () => {
+    choose("micro");
+    expect(price()).toContain("27,500円");
+    expect(container.querySelector(".patient-discount")).toBeNull();
+    expect(afterFace().querySelector(".clinical-features")).toBeNull();
+    expect(
+      container.querySelectorAll('[data-treatment-area="micro"] ellipse'),
+    ).toHaveLength(2);
+    const normalIntensity = Number(
+      afterFace().querySelector<SVGGElement>('[data-skin-example="micro"]')
+        ?.dataset.intensity,
+    );
+    click("変化が少ない例");
+    expect(
+      Number(
+        afterFace().querySelector<SVGGElement>('[data-skin-example="micro"]')
+          ?.dataset.intensity,
+      ),
+    ).toBeGreaterThan(normalIntensity);
+    click("副作用の例");
+    expect(
+      afterFace().querySelector('[data-feature="skin-bruising"]'),
+    ).not.toBeNull();
+    const buttons = Array.from(
+      container.querySelectorAll<HTMLButtonElement>(".patient-variants button"),
+    );
+    act(() =>
+      buttons.find((node) => node.textContent?.startsWith("額＋鼻"))!.click(),
+    );
+    expect(price()).toContain("33,000円");
+    expect(
+      container.querySelector(".patient-price-scope")?.textContent,
+    ).toContain("額＋鼻");
+    expect(
+      afterFace().querySelector('[data-feature="skin-bruising"]'),
+    ).toBeNull();
+    act(() =>
+      buttons.find((node) => node.textContent?.startsWith("全顔"))!.click(),
+    );
+    expect(price()).toContain("44,000円");
+    expect(
+      container.querySelectorAll('[data-treatment-area="micro"] ellipse'),
+    ).toHaveLength(5);
+    choose("glabella");
+    expect(afterFace().querySelector('[data-skin-example="micro"]')).toBeNull();
+    choose("micro");
+    expect(price()).toContain("27,500円");
   });
 });

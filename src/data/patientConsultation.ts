@@ -1,4 +1,8 @@
-import type { PatientConcern } from "../types/botox";
+import type {
+  PatientConcern,
+  PatientTreatmentArea,
+  PatientTreatmentVariant,
+} from "../types/botox";
 
 // Verified sources and scope: docs/BOTOX_KNOWLEDGE.md, 2026-09-07.
 export const CLINIC_PRICE_URL = "https://ueno-iin-biyou-miwa.com/price/";
@@ -12,6 +16,50 @@ const expressionTiming =
   "数日〜約2週間で変化が現れ、通常3〜4か月ほどで徐々に戻ります。個人差があります。";
 const wrinkleLimit =
   "表情を動かさなくても残る深いしわは、十分に改善しない場合があります。";
+const microSource = "https://ueno-iin-biyou-miwa.com/micro-btx/";
+const cheeks: PatientTreatmentArea[] = [
+  { x: 162, y: 204, rx: 17, ry: 17 },
+  { x: 238, y: 204, rx: 17, ry: 17 },
+];
+const forehead: PatientTreatmentArea[] = [{ x: 200, y: 113, rx: 36, ry: 21 }];
+const nose: PatientTreatmentArea[] = [{ x: 200, y: 190, rx: 10, ry: 19 }];
+const microVariants: [PatientTreatmentVariant, ...PatientTreatmentVariant[]] = [
+  {
+    id: "cheeks",
+    label: "両ほほ",
+    price: { yen: 27500, scope: "両ほほ", source: microSource },
+    areas: cheeks,
+  },
+  {
+    id: "cheeks-nose",
+    label: "両ほほ＋鼻",
+    price: { yen: 33000, scope: "両ほほ＋鼻", source: microSource },
+    areas: [...cheeks, ...nose],
+  },
+  {
+    id: "forehead",
+    label: "額",
+    price: { yen: 27500, scope: "額", source: microSource },
+    areas: forehead,
+  },
+  {
+    id: "forehead-nose",
+    label: "額＋鼻",
+    price: { yen: 33000, scope: "額＋鼻", source: microSource },
+    areas: [...forehead, ...nose],
+  },
+  {
+    id: "full-face",
+    label: "全顔",
+    price: { yen: 44000, scope: "全顔", source: microSource },
+    areas: [
+      ...cheeks,
+      ...forehead,
+      ...nose,
+      { x: 200, y: 263, rx: 15, ry: 10 },
+    ],
+  },
+];
 
 export const PATIENT_CONCERNS: [PatientConcern, ...PatientConcern[]] = [
   {
@@ -160,14 +208,14 @@ export const PATIENT_CONCERNS: [PatientConcern, ...PatientConcern[]] = [
     id: "bunny",
     label: "鼻に寄るしわ",
     shortName: "鼻",
-    treatment: "鼻の表情じわ治療",
+    treatment: "バニーライン（鼻のしわ）治療",
     location: "鼻の両側で、笑ったときなどにしわが寄る範囲。",
     expected: "鼻に力を入れたときのしわを、和らげることを目指します。",
     beforeCaption: "鼻に力を入れると、しわが寄る",
     afterCaption: "鼻のしわが和らぐ例",
     limitation: wrinkleLimit,
     timing: expressionTiming,
-    price: null,
+    price: expressionPrice,
     risks: ["笑顔や上唇の動きに左右差が出る", "口元を動かしにくくなる"],
     adverse: "smile",
     adverseCaption: "上唇の動きに左右差が出る例",
@@ -180,7 +228,7 @@ export const PATIENT_CONCERNS: [PatientConcern, ...PatientConcern[]] = [
     id: "dao",
     label: "口角が下がって見える",
     shortName: "口角",
-    treatment: "口角を下げる動きを和らげる治療",
+    treatment: "DAO（口角下制筋）ボトックス",
     location: "左右の口角の下で、口角を引き下げる筋肉の周辺。",
     expected:
       "口角を下げる筋肉の働きを和らげ、下がった印象を軽くすることを目指します。",
@@ -189,7 +237,8 @@ export const PATIENT_CONCERNS: [PatientConcern, ...PatientConcern[]] = [
     limitation:
       "皮膚のたるみや深い溝をなくす治療ではありません。適応と対応可否は診察で確認します。",
     timing: expressionTiming,
-    price: null,
+    // Price provided explicitly by the clinic owner in this conversation.
+    price: { yen: 33000, scope: "口角（DAO）" },
     risks: ["下唇や笑顔に左右差が出る", "飲む・話す動作に違和感が出る"],
     adverse: "lowerLip",
     adverseCaption: "下唇の動きに左右差が出る例",
@@ -223,7 +272,7 @@ export const PATIENT_CONCERNS: [PatientConcern, ...PatientConcern[]] = [
     id: "neck",
     label: "首の縦すじ・輪郭",
     shortName: "首",
-    treatment: "首のすじを和らげる治療",
+    treatment: "ネフェルティティリフト（首・フェイスライン）",
     location: "首から下あごにかけて、力を入れると縦すじが出る筋肉の範囲。",
     expected:
       "首に力を入れたときの縦すじや、輪郭を下へ引く動きを和らげることを目指します。",
@@ -237,8 +286,35 @@ export const PATIENT_CONCERNS: [PatientConcern, ...PatientConcern[]] = [
     adverse: "neck",
     adverseCaption: "見た目に出ない副作用もあります",
     areas: [
+      { x: 170, y: 276, rx: 14, ry: 7 },
+      { x: 230, y: 276, rx: 14, ry: 7 },
       { x: 182, y: 317, rx: 10, ry: 26 },
       { x: 218, y: 317, rx: 10, ry: 26 },
     ],
+  },
+  {
+    id: "micro",
+    label: "毛穴・テカリが気になる",
+    shortName: "毛穴・テカリ",
+    treatment: "マイクロボトックス（肌の浅い部分への施術）",
+    location: "選んだ範囲の肌の浅い部分へ、広く分散して注射します。",
+    expected:
+      "皮脂や汗によるテカリ、毛穴の目立ちを和らげ、肌の質感を整えることを目指します。",
+    beforeCaption: "毛穴の目立ち・テカリが気になる",
+    afterCaption: "毛穴の目立ち・テカリが和らぐ例",
+    limitation:
+      "毛穴がなくなる治療ではありません。乾燥の改善や、ニキビ跡の深い凹みには別の対応が必要です。",
+    timing:
+      "約1週間から変化を感じ始めることがあり、約1か月で状態を確認します。持続は通常3〜4か月が目安で、個人差があります。",
+    price: microVariants[0].price,
+    variants: microVariants,
+    availability: "金・土に対応するメニューです。",
+    risks: [
+      "注射した範囲の赤み・腫れ・内出血",
+      "周辺の筋肉への影響で、表情の違和感や左右差が出る",
+    ],
+    adverse: "none",
+    adverseCaption: "注射した範囲に内出血が出る例",
+    areas: cheeks,
   },
 ];
