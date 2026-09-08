@@ -137,6 +137,7 @@ export default function PatientApp() {
 
         <div className="patient-layout">
           <section
+            id="patient-concerns"
             className="patient-choices"
             aria-labelledby="concern-heading"
           >
@@ -320,7 +321,7 @@ export default function PatientApp() {
               )}
             </section>
 
-            <div className="patient-facts">
+            <div id="patient-fees" className="patient-facts">
               <section
                 className="patient-price-card"
                 aria-labelledby="price-heading"
@@ -388,6 +389,7 @@ export default function PatientApp() {
             </div>
 
             <section
+              id="patient-risks"
               className="patient-risk-card"
               aria-labelledby="risk-heading"
             >
@@ -471,6 +473,11 @@ export default function PatientApp() {
           </details>
         </section>
       </main>
+      <nav className="patient-mobile-nav" aria-label="スマートフォンのメニュー">
+        <a href="#patient-concerns">お悩みを選ぶ ↑</a>
+        <a href="#patient-fees">料金・効果</a>
+        <a href="#patient-risks">副作用</a>
+      </nav>
       <footer className="patient-footer">
         ぽちっとしわとり · 患者さん向け相談版
         <span>医療行為や医師の診察を代替するものではありません。</span>
