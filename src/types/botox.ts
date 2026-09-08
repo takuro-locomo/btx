@@ -373,6 +373,7 @@ export interface PatientConcern {
   expected: string;
   beforeCaption: string;
   afterCaption: string;
+  comparisonFocus: string;
   limitation: string;
   timing: string;
   price: PatientPrice | null;

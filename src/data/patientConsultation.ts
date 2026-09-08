@@ -70,6 +70,7 @@ export const PATIENT_CONCERNS: [PatientConcern, ...PatientConcern[]] = [
     location: "眉と眉の間で、しわを寄せる筋肉の周辺。",
     expected:
       "眉を寄せる動きを和らげ、眉間の縦じわを目立ちにくくすることを目指します。",
+    comparisonFocus: "眉間の縦じわの濃さと、眉の寄り方",
     beforeCaption: "眉を寄せると、縦じわが出る",
     afterCaption: "眉間のしわが寄りにくくなる例",
     limitation: wrinkleLimit,
@@ -92,6 +93,7 @@ export const PATIENT_CONCERNS: [PatientConcern, ...PatientConcern[]] = [
     location: "おでこで、眉を持ち上げる筋肉の周辺。",
     expected:
       "眉を上げたときのおでこの横じわを、目立ちにくくすることを目指します。",
+    comparisonFocus: "おでこの横じわの濃さと、眉の上がり方",
     beforeCaption: "眉を上げると、横じわが出る",
     afterCaption: "おでこの横じわが和らぐ例",
     limitation:
@@ -114,6 +116,7 @@ export const PATIENT_CONCERNS: [PatientConcern, ...PatientConcern[]] = [
     treatment: "目尻の表情じわ治療",
     location: "左右の目尻の外側で、笑いじわが寄る範囲。",
     expected: "笑ったときに目尻へ広がるしわを、和らげることを目指します。",
+    comparisonFocus: "目の開きをそろえたときの、目尻の笑いじわ",
     beforeCaption: "目元を動かすと、しわが寄る",
     afterCaption: "目尻のしわが目立ちにくくなる例",
     limitation:
@@ -136,6 +139,7 @@ export const PATIENT_CONCERNS: [PatientConcern, ...PatientConcern[]] = [
     location: "あご先で、力を入れたときに凹凸が出る範囲。",
     expected:
       "あごに力を入れたときの梅干しのような凹凸を、和らげることを目指します。",
+    comparisonFocus: "あご先の小さな凹凸と、しわの濃さ",
     beforeCaption: "あごに力を入れると、凹凸が出る",
     afterCaption: "あご先の凹凸が和らぐ例",
     limitation:
@@ -155,6 +159,7 @@ export const PATIENT_CONCERNS: [PatientConcern, ...PatientConcern[]] = [
     location: "左右のエラで、噛みしめると硬くなる筋肉の範囲。",
     expected:
       "噛む筋肉の強い緊張を和らげ、筋肉が原因のエラの張りや食いしばりの負担を軽くすることを目指します。",
+    comparisonFocus: "噛みしめたときの、エラの筋肉の張り",
     beforeCaption: "噛みしめると、筋肉が張る",
     afterCaption: "噛んだときの筋肉の張りが和らぐ例",
     limitation:
@@ -182,6 +187,7 @@ export const PATIENT_CONCERNS: [PatientConcern, ...PatientConcern[]] = [
     location: "小鼻の横から上唇にかけて、上唇を引き上げる筋肉の周辺。",
     expected:
       "上唇の上がり方を穏やかにして、笑ったときに見える歯ぐきの範囲を小さくすることを目指します。",
+    comparisonFocus: "笑ったときの上唇の位置と、歯ぐきの見え方",
     beforeCaption: "上唇が上がり、歯ぐきが見える",
     afterCaption: "上唇の上がり方が穏やかになる例",
     limitation:
@@ -211,6 +217,7 @@ export const PATIENT_CONCERNS: [PatientConcern, ...PatientConcern[]] = [
     treatment: "バニーライン（鼻のしわ）治療",
     location: "鼻の両側で、笑ったときなどにしわが寄る範囲。",
     expected: "鼻に力を入れたときのしわを、和らげることを目指します。",
+    comparisonFocus: "鼻の両側に寄る、しわの濃さ",
     beforeCaption: "鼻に力を入れると、しわが寄る",
     afterCaption: "鼻のしわが和らぐ例",
     limitation: wrinkleLimit,
@@ -232,6 +239,7 @@ export const PATIENT_CONCERNS: [PatientConcern, ...PatientConcern[]] = [
     location: "左右の口角の下で、口角を引き下げる筋肉の周辺。",
     expected:
       "口角を下げる筋肉の働きを和らげ、下がった印象を軽くすることを目指します。",
+    comparisonFocus: "口角が下へ引かれる動き",
     beforeCaption: "口角が下へ引かれている",
     afterCaption: "口角が下へ引かれにくくなる例",
     limitation:
@@ -254,6 +262,7 @@ export const PATIENT_CONCERNS: [PatientConcern, ...PatientConcern[]] = [
     treatment: "口唇まわりの表情じわ治療",
     location: "唇のまわりで、口をすぼめる動きに関わる筋肉の周辺。",
     expected: "口をすぼめたときの縦じわを、目立ちにくくすることを目指します。",
+    comparisonFocus: "唇のまわりの縦じわと、すぼめる動き",
     beforeCaption: "口をすぼめると、しわが出る",
     afterCaption: "唇まわりのしわが和らぐ例",
     limitation:
@@ -276,6 +285,7 @@ export const PATIENT_CONCERNS: [PatientConcern, ...PatientConcern[]] = [
     location: "首から下あごにかけて、力を入れると縦すじが出る筋肉の範囲。",
     expected:
       "首に力を入れたときの縦すじや、輪郭を下へ引く動きを和らげることを目指します。",
+    comparisonFocus: "首に力を入れたときの、縦すじの目立ち方",
     beforeCaption: "首に力を入れると、すじが出る",
     afterCaption: "首の縦すじが目立ちにくくなる例",
     limitation:
@@ -300,6 +310,7 @@ export const PATIENT_CONCERNS: [PatientConcern, ...PatientConcern[]] = [
     location: "選んだ範囲の肌の浅い部分へ、広く分散して注射します。",
     expected:
       "皮脂や汗によるテカリ、毛穴の目立ちを和らげ、肌の質感を整えることを目指します。",
+    comparisonFocus: "同じ範囲の毛穴の目立ち方と、テカリ",
     beforeCaption: "毛穴の目立ち・テカリが気になる",
     afterCaption: "毛穴の目立ち・テカリが和らぐ例",
     limitation:

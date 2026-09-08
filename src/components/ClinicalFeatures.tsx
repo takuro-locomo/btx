@@ -20,11 +20,14 @@ export function ClinicalFeatures({ settings, model, before, motion = 1 }: {
   const lipWeakness = model.adverse === "lip" ? a : 0;
   const smileWeakness = model.adverse === "smile" ? a : 0;
   const lowerWeakness = model.adverse === "lowerLip" ? a : 0;
-  const smile = region === "gummy" ? active : region === "bunny" ? e * .65 : 0;
+  // Keep the effort to smile and the mouth corners comparable. Only the
+  // targeted upper-lip lift varies in the gummy-smile explanation.
+  const smile = region === "gummy" ? e : region === "bunny" ? e * .65 : 0;
+  const upperLipLift = region === "gummy" ? active * 11 : smile * 11;
   const width = region === "lips" ? 22 - active * 8 : 23;
   const leftX = 200 - width, rightX = 200 + width;
   const corner = 238 + (region === "dao" ? active * 8 : -smile * 5);
-  const topLeft = 233 - smile * 11;
+  const topLeft = 233 - upperLipLift;
   const topRight = topLeft + smileWeakness * e * 11;
   const gap = smile * 10 + lipWeakness * 7;
   const bottomLeft = 240 + gap * .55;
@@ -47,15 +50,20 @@ export function ClinicalFeatures({ settings, model, before, motion = 1 }: {
       </g>}
     </g>}
     {eyes && [160, 240].map((cx, index) => {
-      const closing = region === "eyes" ? e * .94 * (index === 1 && model.adverse === "closure" ? 1 - a * .9 : 1) : 0;
+      // A gentle smile, not a forced eye closure, in the normal comparison.
+      // The closure attempt belongs only to the explicitly selected risk example.
+      const closureAttempt = region === "eyes" && !before && model.adverse === "closure" && a > 0;
+      const closing = region === "eyes"
+        ? closureAttempt ? e * (index === 0 ? .94 : .32) * a : e * .12
+        : 0;
       const droop = index === 1 && model.adverse === "eyelid" ? a * 12 : 0;
-      const top = 155 + closing * 10 + droop;
-      const bottom = 173 - closing * 7;
+      const top = 150 + closing * 15 + droop;
+      const bottom = 179 - closing * 12;
       const path = `M${cx - 17} 165 Q${cx} ${top} ${cx + 17} 165 Q${cx} ${Math.max(top + 1, bottom)} ${cx - 17} 165Z`;
-      return <g key={cx} data-feature={index === 1 ? "right-eye" : "left-eye"} data-droop={droop}>
+      return <g key={cx} data-feature={index === 1 ? "right-eye" : "left-eye"} data-droop={droop} data-closing={closing}>
         <ellipse cx={cx} cy="165" rx="22" ry="16" fill="#fbe6df" filter={"url(#" + uid + "-blend)"} />
         <clipPath id={uid + "-eye-" + index}><path d={path} /></clipPath>
-        <path d={path} fill="#fffaf7" stroke="#b9a096" strokeWidth=".7" />
+        <path data-eye-opening="true" d={path} fill="#fffaf7" stroke="#b9a096" strokeWidth=".7" />
         <g clipPath={`url(#${uid}-eye-${index})`}>
           <circle cx={cx} cy="165" r="5.7" fill="#b3a49a" /><circle cx={cx} cy="165" r="3.5" fill="#6a605b" />
           <circle cx={cx - 1.5} cy="163.5" r="1.3" fill="white" />
@@ -64,12 +72,12 @@ export function ClinicalFeatures({ settings, model, before, motion = 1 }: {
         {droop > 1 && <path d={`M${cx + 22} 155 v${droop} l-2 -3 m2 3 l2 -3`} stroke="#b13d54" strokeWidth="1" fill="none" />}
       </g>;
     })}
-    {mouth && <g data-feature="mouth" data-asymmetry={smileWeakness + lowerWeakness} data-gap={gap}>
+    {mouth && <g data-feature="mouth" data-asymmetry={smileWeakness + lowerWeakness} data-gap={gap} data-corner={corner} data-upper-lip-lift={upperLipLift}>
       <ellipse cx="200" cy="240" rx="30" ry="20" fill="#fce6dd" filter={"url(#" + uid + "-blend)"} />
       <path d={`M${leftX} ${corner} Q188 ${topLeft} 200 ${topLeft + 1} Q211 ${topRight} ${rightX} ${corner} Q213 ${bottomRight + 7} 200 ${bottomLeft + 8} Q187 ${bottomLeft + 7} ${leftX} ${corner}Z`} fill="#e6ac9c" opacity=".9" />
       <path d={`M${leftX + 1} ${corner} Q187 ${topLeft + 4} 200 ${topLeft + 5} Q213 ${topRight + 3} ${rightX - 1} ${corner} Q212 ${bottomRight} 200 ${bottomLeft} Q188 ${bottomLeft} ${leftX + 1} ${corner}Z`} fill={gap > .4 ? "#875e57" : "#c98d80"} />
       {smile > .08 && <path d={`M181 ${corner - 1} Q188 ${topLeft + 4} 200 ${topLeft + 5} Q212 ${topRight + 3} 219 ${corner - 1} L214 ${corner + 2} Q199 ${topLeft + 10} 185 ${corner + 2}Z`} fill="#fff8ec" />}
-      {region === "gummy" && smile > .1 && <path d={`M183 ${corner - 2} Q199 ${topLeft + 2} 217 ${corner - 2}`} stroke="#d38d89" strokeWidth={smile * 3} fill="none" />}
+      {region === "gummy" && smile > .1 && <path d={`M183 ${corner - 2} Q199 ${topLeft + 2} 217 ${corner - 2}`} stroke="#d38d89" strokeWidth={active * 3} fill="none" />}
       <path d={`M${leftX} ${corner} Q185 ${topLeft - 1} 195 ${topLeft} L200 ${topLeft + 2} L205 ${topRight} Q215 ${topRight - 1} ${rightX} ${corner}`} stroke="#b78275" strokeWidth=".75" fill="none" />
       {a > .15 && <path d={`M${rightX + 4} 230 v${6 + a * 7} l-2 -3 m2 3 l2 -3`} stroke="#b13d54" strokeWidth="1" fill="none" />}
     </g>}

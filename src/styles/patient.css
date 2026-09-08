@@ -875,3 +875,32 @@
 .patient-app .patient-clinic-info-button > span { display: inline; flex-shrink: 0; margin: 0; font-size: inherit; }
 .patient-footer .patient-clinic-info-button { margin: 0 0 18px; }
 @media (max-width: 540px) { .patient-app .patient-clinic-info-button { width: 100%; font-size: .875rem; } }
+
+/* Matched framing and optional overlays keep the treatment comparison readable. */
+.patient-view-controls { display: flex; flex-wrap: wrap; gap: 7px; }
+.patient-view-controls button[aria-pressed="true"] { border-color: #a93f65; background: #fbeaf1; color: #963858; }
+.patient-comparison-tools { flex-wrap: wrap; }
+.patient-comparison-focus { display: flex; flex-wrap: wrap; gap: 4px 10px; padding: 0 16px 14px; font-size: .9375rem; color: #654d59; }
+.patient-comparison-focus strong { color: #943456; }
+.patient-layout-switch, .patient-phase-switch { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; padding: 5px; margin: 0 14px 12px; border-radius: 10px; background: #f0e9ec; }
+.patient-layout-switch button, .patient-phase-switch button { min-height: 48px; padding: 10px 6px; border-radius: 7px; font-size: .875rem; color: #6a5360; line-height: 1.5; }
+.patient-layout-switch button[aria-pressed="true"], .patient-phase-switch button[aria-pressed="true"] { color: #963858; background: white; font-weight: 700; box-shadow: 0 2px 5px #4a223f12; }
+.patient-phase-switch { background: #fbeaf1; }
+.patient-face-pair { gap: 10px; padding: 12px; background: #fff8fb; align-items: stretch; }
+.patient-face-pair > figure { border: 1px solid #e9dce2; border-radius: 10px; overflow: hidden; }
+.patient-face-pair > figure[hidden] { display: none; }
+.patient-face-pair[data-layout="switch"] { grid-template-columns: minmax(0, 1fr); }
+.patient-face-label { display: flex; justify-content: center; align-items: center; min-height: 48px; padding: 10px 6px; font-size: 1rem; line-height: 1.5; font-weight: 700; }
+.patient-face-pair[data-zoom="true"] .clinical-face-svg { height: auto; aspect-ratio: 1; max-height: 360px; padding: 6px; }
+.patient-face-pair[data-layout="switch"] .clinical-face-svg { min-height: 280px; }
+.patient-face-pair figcaption { font-size: .875rem; line-height: 1.7; }
+.patient-crop-note { font-size: .8125rem; color: #79606c; padding: 10px 14px 4px; }
+.patient-illustration-note { padding-top: 10px; }
+@media (max-width: 540px) {
+  .patient-view-controls { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+  .patient-comparison-focus { padding-inline: 12px; }
+  .patient-layout-switch, .patient-phase-switch { margin-inline: 8px; }
+  .patient-face-pair { gap: 6px; padding: 8px; }
+  .patient-face-label { font-size: .9375rem; }
+  .patient-face-pair figcaption { padding: 10px 7px; font-size: .8125rem; }
+}

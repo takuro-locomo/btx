@@ -123,11 +123,11 @@ describe("Patient consultation", () => {
         ?.dataset.droop,
     ).toBe("0");
   });
-  it("clears adverse mode and enlargement when choosing a different concern", () => {
-    click("部位を拡大 ↗");
+  it("clears adverse mode and restores the close-up when choosing a different concern", () => {
+    click("顔全体に戻す ↗");
     click("副作用の例");
     choose("forehead");
-    expect(afterFace().getAttribute("viewBox")).toBe("120 58 164 224");
+    expect(afterFace().getAttribute("viewBox")).toBe("140 82 120 88");
     expect(container.querySelector(".showing-adverse")).toBeNull();
     expect(container.querySelector(".patient-example-message")).toBeNull();
     expect(
@@ -153,7 +153,7 @@ describe("Patient consultation", () => {
     expect(container.querySelector(".patient-discount")).toBeNull();
     expect(afterFace().querySelector(".clinical-features")).toBeNull();
     expect(
-      container.querySelectorAll('[data-treatment-area="micro"] ellipse'),
+      container.querySelectorAll('[data-face="before"] [data-treatment-area="micro"] ellipse'),
     ).toHaveLength(2);
     const normalIntensity = Number(
       afterFace().querySelector<SVGGElement>('[data-skin-example="micro"]')
@@ -188,11 +188,102 @@ describe("Patient consultation", () => {
     );
     expect(price()).toContain("44,000円");
     expect(
-      container.querySelectorAll('[data-treatment-area="micro"] ellipse'),
+      container.querySelectorAll('[data-face="before"] [data-treatment-area="micro"] ellipse'),
     ).toHaveLength(5);
     choose("glabella");
     expect(afterFace().querySelector('[data-skin-example="micro"]')).toBeNull();
     choose("micro");
     expect(price()).toContain("27,500円");
   });
+  it("keeps a natural, matched eye opening while crow's feet change", () => {
+    choose("eyes");
+    const before = container.querySelector<SVGSVGElement>('[data-face="before"]')!;
+    for (const mode of ["期待できる変化", "変化が少ない例"]) {
+      click(mode);
+      for (const side of ["left-eye", "right-eye"]) {
+        const selector = `[data-feature="${side}"] [data-eye-opening]`;
+        const path = before.querySelector(selector)!.getAttribute("d")!;
+        expect(afterFace().querySelector(selector)!.getAttribute("d")).toBe(path);
+        const coords = path.match(/-?\d+(?:\.\d+)?/g)!.map(Number);
+        expect(coords).toHaveLength(10);
+        const opening = (coords[7]! - coords[3]!) / 2;
+        const width = coords[4]! - coords[0]!;
+        expect(opening / width).toBeGreaterThan(.28);
+        expect(opening / width).toBeLessThan(.55);
+      }
+    }
+    const originalOpening = before.querySelector('[data-feature="right-eye"] [data-eye-opening]')!.getAttribute("d");
+    click("副作用の例");
+    expect(container.querySelector(".patient-comparison-focus")?.textContent).toContain("目を閉じようとしたとき");
+    expect(before.querySelector('[data-feature="right-eye"] [data-eye-opening]')!.getAttribute("d")).toBe(originalOpening);
+    expect(afterFace().getAttribute("viewBox")).toBe(before.getAttribute("viewBox"));
+    expect(afterFace().getAttribute("viewBox")).toBe("123 136 154 58");
+    click("期待できる変化");
+    expect(afterFace().querySelector('[data-feature="right-eye"] [data-eye-opening]')!.getAttribute("d")).toBe(originalOpening);
+  });
+  it("matches close-ups and removes the treatment tint from the default comparison", () => {
+    for (const concern of PATIENT_CONCERNS) {
+      choose(concern.id);
+      const before = container.querySelector<SVGSVGElement>('[data-face="before"]')!;
+      expect(afterFace().getAttribute("viewBox")).toBe(before.getAttribute("viewBox"));
+      expect(container.querySelector(".patient-comparison-focus")?.textContent).toContain(concern.comparisonFocus);
+      const overlays = container.querySelectorAll('[data-treatment-area]');
+      expect(overlays).toHaveLength(2);
+      for (const overlay of overlays) expect(overlay.getAttribute("opacity")).toBe("0");
+    }
+    click("打つ範囲を重ねる");
+    for (const overlay of container.querySelectorAll('[data-treatment-area]')) expect(overlay.getAttribute("opacity")).toBe("1");
+    choose("eyes");
+    for (const overlay of container.querySelectorAll('[data-treatment-area]')) expect(overlay.getAttribute("opacity")).toBe("0");
+  });
+  it("makes active creases distinct without changing unrelated wrinkles", () => {
+    for (const id of ["glabella", "forehead", "eyes", "bunny", "lips", "chin", "neck"]) {
+      choose(id);
+      const before = container.querySelector<SVGSVGElement>('[data-face="before"]')!;
+      const selector = `[data-wrinkle-region="${id}"]`;
+      const beforeOpacity = Number(before.querySelector(selector)!.getAttribute("opacity"));
+      const afterOpacity = Number(afterFace().querySelector(selector)!.getAttribute("opacity"));
+      expect(beforeOpacity).toBeGreaterThan(.7);
+      expect(afterOpacity).toBeGreaterThan(0);
+      expect(afterOpacity).toBeLessThan(beforeOpacity / 2);
+      for (const region of before.querySelectorAll('[data-wrinkle-region]')) {
+        if (region.getAttribute("data-wrinkle-region") === id) continue;
+        const other = afterFace().querySelector(`[data-wrinkle-region="${region.getAttribute("data-wrinkle-region")}"]`)!;
+        expect(other.outerHTML).toBe(region.outerHTML);
+      }
+      click("変化が少ない例");
+      expect(Number(afterFace().querySelector(selector)!.getAttribute("opacity"))).toBeGreaterThan(afterOpacity);
+    }
+  });
+  it("switches the same-position comparison without changing its price or outcome", () => {
+    choose("eyes");
+    const fee = price();
+    const outcome = afterFace().innerHTML;
+    click("同じ位置で切り替え");
+    const before = container.querySelector<HTMLElement>('#patient-before-figure')!;
+    const after = container.querySelector<HTMLElement>('#patient-after-figure')!;
+    expect(before.hidden).toBe(true);
+    expect(after.hidden).toBe(false);
+    click("施術前");
+    expect(before.hidden).toBe(false);
+    expect(after.hidden).toBe(true);
+    click("施術後の例");
+    expect(afterFace().innerHTML).toBe(outcome);
+    expect(price()).toBe(fee);
+    click("施術前");
+    click("変化が少ない例");
+    expect(after.hidden).toBe(false);
+    click("並べて比較");
+    expect(before.hidden).toBe(false);
+    expect(after.hidden).toBe(false);
+  });
+  it("shows less upper-lip lift without erasing the effort to smile", () => {
+    choose("gummy");
+    const before = container.querySelector<SVGGElement>('[data-face="before"] [data-feature="mouth"]')!;
+    const after = afterFace().querySelector<SVGGElement>('[data-feature="mouth"]')!;
+    expect(after.dataset.corner).toBe(before.dataset.corner);
+    expect(after.dataset.gap).toBe(before.dataset.gap);
+    expect(Number(after.dataset.upperLipLift)).toBeLessThan(Number(before.dataset.upperLipLift));
+  });
+
 });

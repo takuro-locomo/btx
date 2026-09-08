@@ -20,7 +20,7 @@ const MUSCLES: { id: ClinicalRegionId; d: string; rotation: number }[] = [
 const WRINKLES: Partial<Record<ClinicalRegionId, string[]>> = {
   forehead: ["M158 104 Q200 97 242 104", "M156 115 Q200 109 244 115", "M160 126 Q200 119 240 126"],
   glabella: ["M195 138 Q192 147 194 155", "M205 138 Q208 147 206 155"],
-  eyes: ["M149 155 L137 147", "M148 164 L133 164", "M149 173 L137 181", "M253 155 L266 147", "M254 164 L269 164", "M253 173 L266 181"],
+  eyes: ["M140 159 Q133 157 128 152", "M139 165 Q132 164 125 165", "M141 171 Q134 174 129 180", "M260 159 Q267 157 272 152", "M261 165 Q268 164 275 165", "M259 171 Q266 174 271 180"],
   bunny: ["M189 184 Q185 191 187 199", "M211 184 Q215 191 213 199"],
   lips: ["M187 223 L187 228", "M194 221 L194 226", "M207 221 L207 226", "M214 223 L214 228"],
   chin: ["M191 255 Q189 261 192 267", "M200 255 L200 268", "M209 255 Q211 261 208 267"],
@@ -38,10 +38,11 @@ interface Props {
   before: boolean;
   onSelect: (id: ClinicalRegionId) => void;
   treatmentAreas?: PatientTreatmentArea[];
+  showTreatmentAreas?: boolean;
   accessibleLabel?: string;
   skinAreas?: PatientTreatmentArea[];
 }
-export function ClinicalFace({ settings, model, skin, muscles, landmarks, before, onSelect, zoom = false, motion = 1, treatmentAreas, accessibleLabel, skinAreas }: Props) {
+export function ClinicalFace({ settings, model, skin, muscles, landmarks, before, onSelect, zoom = false, motion = 1, treatmentAreas, showTreatmentAreas = true, accessibleLabel, skinAreas }: Props) {
   const uid = useId().replace(/:/g, "");
   const includeNeck = settings.region === "neck";
   const expression = settings.expression / 100 * motion;
@@ -56,7 +57,7 @@ export function ClinicalFace({ settings, model, skin, muscles, landmarks, before
     skinViewBox = `${left} ${top} ${right - left} ${bottom - top}`;
   }
   const focus: Record<ClinicalRegionId, string> = {
-    forehead: "130 85 140 90", glabella: "130 122 140 66", eyes: "130 139 140 55",
+    forehead: "140 82 120 88", glabella: "163 121 74 62", eyes: model.adverse === "closure" ? "123 136 154 58" : "122 136 78 58",
     bunny: "169 176 62 72", gummy: "167 205 66 53", lips: "167 215 66 45",
     dao: "153 217 94 58", chin: "167 235 66 43", masseter: "125 196 150 70", neck: "151 275 98 75",
   };
@@ -105,8 +106,8 @@ export function ClinicalFace({ settings, model, skin, muscles, landmarks, before
       )}
       {/* Static skin changes remain at rest; animation never claims complete removal. */}
       {!skinAreas && Object.entries(WRINKLES).map(([id, paths]) => (
-        <g key={id} fill="none" stroke="#946859" strokeWidth={id === settings.region ? .75 + active * 1.1 : .6} strokeLinecap="round"
-          opacity={id === settings.region ? .09 + active * .85 : .06}
+        <g key={id} data-wrinkle-region={id} fill="none" stroke="#946859" strokeWidth={id === settings.region ? .8 + active * 1.2 : .6} strokeLinecap="round"
+          opacity={id === settings.region ? .08 + active * .9 : .06}
           style={{ transition: "opacity .45s" }}>
           {paths.map(d => <path key={d} d={d} />)}
         </g>
@@ -132,7 +133,7 @@ export function ClinicalFace({ settings, model, skin, muscles, landmarks, before
         <path d="M173 84 V272 M228 84 V272" />
         <text x="125" y="80" fontSize="5.4" fill="#42616c" stroke="none">瞳孔線・眼窩上縁の概念位置</text>
       </g>}
-      {treatmentAreas && <g data-treatment-area={skinAreas ? "micro" : settings.region} fill="#d74278" fillOpacity=".2" stroke="#b5265c" strokeWidth=".9" strokeDasharray="2 1.4" pointerEvents="none">
+      {treatmentAreas && <g data-treatment-area={skinAreas ? "micro" : settings.region} opacity={showTreatmentAreas ? 1 : 0} aria-hidden={!showTreatmentAreas} fill="#d74278" fillOpacity=".2" stroke="#b5265c" strokeWidth=".9" strokeDasharray="2 1.4" pointerEvents="none">
         {treatmentAreas.map((p, i) => <ellipse key={i} cx={p.x} cy={p.y} rx={p.rx} ry={p.ry} />)}
       </g>}
       {!before && muscles && CLINICAL_REGIONS.filter(r => includeNeck || r.id !== "neck").map(r => r.points.map((p, i) => {
