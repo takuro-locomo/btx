@@ -354,7 +354,7 @@ export interface ClinicalModelResult {
 }
 
 // Patient consultation content. No dose or probability fields.
-export type PatientExample = "expected" | "limited" | "adverse";
+export type PatientExample = "expected" | "adverse";
 export type PatientConcernId = ClinicalRegionId | "micro";
 export interface PatientTreatmentArea { x: number; y: number; rx: number; ry: number }
 export interface PatientPrice { yen: number; scope: string; discount?: number; source?: string }

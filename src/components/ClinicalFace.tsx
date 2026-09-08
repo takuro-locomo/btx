@@ -41,8 +41,10 @@ interface Props {
   showTreatmentAreas?: boolean;
   accessibleLabel?: string;
   skinAreas?: PatientTreatmentArea[];
+  /** Patient illustration only: omit the selected after-image creases for clarity. */
+  hideSelectedWrinkles?: boolean;
 }
-export function ClinicalFace({ settings, model, skin, muscles, landmarks, before, onSelect, zoom = false, motion = 1, treatmentAreas, showTreatmentAreas = true, accessibleLabel, skinAreas }: Props) {
+export function ClinicalFace({ settings, model, skin, muscles, landmarks, before, onSelect, zoom = false, motion = 1, treatmentAreas, showTreatmentAreas = true, accessibleLabel, skinAreas, hideSelectedWrinkles = false }: Props) {
   const uid = useId().replace(/:/g, "");
   const includeNeck = settings.region === "neck";
   const expression = settings.expression / 100 * motion;
@@ -77,7 +79,7 @@ export function ClinicalFace({ settings, model, skin, muscles, landmarks, before
         ))}
       </defs>
       <image href="/face-clean.png" x="0" y="0" width="398" height="400" clipPath={"url(#" + uid + "-face)"} />
-      {!skinAreas && <ClinicalFeatures settings={settings} model={model} before={before} motion={motion} />}
+      {!skinAreas && <ClinicalFeatures hideSelectedWrinkles={hideSelectedWrinkles} settings={settings} model={model} before={before} motion={motion} />}
       {skinAreas && <g data-skin-example="micro" data-intensity={skinIntensity} pointerEvents="none">
         {skinAreas.map((p, i) => <g key={i}>
           <ellipse cx={p.x} cy={p.y} rx={p.rx} ry={p.ry} fill={"url(#" + uid + "-pores)"} />
@@ -104,10 +106,10 @@ export function ClinicalFace({ settings, model, skin, muscles, landmarks, before
           })}
         </g>
       )}
-      {/* Static skin changes remain at rest; animation never claims complete removal. */}
+      {/* Clinical mode retains resting lines; the patient schematic can omit selected after-image lines. */}
       {!skinAreas && Object.entries(WRINKLES).map(([id, paths]) => (
         <g key={id} data-wrinkle-region={id} fill="none" stroke="#946859" strokeWidth={id === settings.region ? .8 + active * 1.2 : .6} strokeLinecap="round"
-          opacity={id === settings.region ? .08 + active * .9 : .06}
+          opacity={id === settings.region ? !before && hideSelectedWrinkles ? 0 : .08 + active * .9 : .06}
           style={{ transition: "opacity .45s" }}>
           {paths.map(d => <path key={d} d={d} />)}
         </g>

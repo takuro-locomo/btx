@@ -12,7 +12,6 @@ import "./styles/patient.css";
 
 const EXAMPLES: { id: PatientExample; label: string }[] = [
   { id: "expected", label: "期待できる変化" },
-  { id: "limited", label: "変化が少ない例" },
   { id: "adverse", label: "副作用の例" },
 ];
 const yen = (value: number) => value.toLocaleString("ja-JP") + "円";
@@ -51,10 +50,14 @@ function ConcernIcon({ concern }: { concern: PatientConcern }) {
 export default function PatientApp() {
   const [selected, setSelected] = useState(PATIENT_CONCERNS[0]);
   const [example, setExample] = useState<PatientExample>("expected");
-  const [zoom, setZoom] = useState(true);
+  const [zoom, setZoom] = useState(false);
   const [showAreas, setShowAreas] = useState(false);
-  const [comparisonLayout, setComparisonLayout] = useState<"pair" | "switch">("pair");
-  const [comparisonPhase, setComparisonPhase] = useState<"before" | "after">("after");
+  const [comparisonLayout, setComparisonLayout] = useState<"pair" | "switch">(
+    "pair",
+  );
+  const [comparisonPhase, setComparisonPhase] = useState<"before" | "after">(
+    "after",
+  );
   const [variantId, setVariantId] = useState("");
   const resultRef = useRef<HTMLElement>(null);
   const variant =
@@ -77,7 +80,7 @@ export default function PatientApp() {
     targetLayer: "superficial",
     layerMatch: true,
     message: "説明用のイラスト",
-    visualRelaxation: example === "limited" ? 0.12 : 0.75,
+    visualRelaxation: 0.75,
     visualAdverse: example === "adverse" ? 1 : 0,
     adverse: example === "adverse" ? selected.adverse : "none",
     state: "relaxed",
@@ -86,25 +89,14 @@ export default function PatientApp() {
     observation: "",
   };
   const afterCaption =
-    example === "adverse"
-      ? selected.adverseCaption
-      : example === "limited"
-        ? micro
-          ? "毛穴の目立ち・テカリが残る例"
-          : "しわや筋肉の動きが残る例"
-        : selected.afterCaption;
+    example === "adverse" ? selected.adverseCaption : selected.afterCaption;
   function chooseConcern(concern: PatientConcern) {
     setSelected(concern);
     setExample("expected");
-    setZoom(true);
+    setZoom(false);
     setShowAreas(false);
     setComparisonPhase("after");
     setVariantId("");
-    if (window.innerWidth < 860)
-      resultRef.current?.scrollIntoView?.({
-        behavior: "instant",
-        block: "start",
-      });
   }
   const faceProps = {
     settings,
@@ -117,13 +109,20 @@ export default function PatientApp() {
     skinAreas: micro ? treatmentAreas : undefined,
     treatmentAreas,
     showTreatmentAreas: showAreas,
+    hideSelectedWrinkles: true,
   };
 
   return (
     <div className="clinical-app patient-app">
       <header className="patient-header">
         <a href="https://ueno-iin-biyou-miwa.com/" className="patient-clinic">
-          <img className="patient-clinic-logo" src="/ueno-clinic-logo.png" alt="上野医院 UENO CLINIC" width={250} height={82} />
+          <img
+            className="patient-clinic-logo"
+            src="/ueno-clinic-logo.png"
+            alt="上野医院 UENO CLINIC"
+            width={250}
+            height={82}
+          />
           <small>長野市 三輪｜美容皮膚科</small>
         </a>
         <span className="patient-header-tag">診察前のご相談ガイド</span>
@@ -131,52 +130,11 @@ export default function PatientApp() {
       <main className="patient-main">
         <div className="patient-intro">
           <p className="patient-kicker">ぽちっとしわとり</p>
-          <h1>
-            気になるところから、
-            <br className="patient-mobile-break" />
-            変化を見てみましょう。
-          </h1>
-          <p>お悩みを選ぶと、打つ場所・料金・変化・副作用がわかります。</p>
-          <p className="patient-disclaimer">
-            診察前の説明用です。図は仕上がりの予測ではありません。治療が合うかどうかは医師が診察で判断します。
-          </p>
-          <a className="patient-clinic-info-button" href="https://ueno-iin-biyou-miwa.com/siwa/" target="_blank" rel="noreferrer">医院のボトックス案内を見る<span aria-hidden="true">↗</span></a>
+          <h1>顔の変化を見てみましょう。</h1>
+          <p>顔の下のお悩みボタンを押して、前後を比較。</p>
         </div>
 
         <div className="patient-layout">
-          <section
-            id="patient-concerns"
-            className="patient-choices"
-            aria-labelledby="concern-heading"
-          >
-            <div className="patient-step-heading">
-              <span>01</span>
-              <h2 id="concern-heading">気になるお悩みを選ぶ</h2>
-            </div>
-            <p className="patient-helper">ひとつずつ、押してみてください。</p>
-            <div className="concern-grid">
-              {PATIENT_CONCERNS.map((concern) => (
-                <button
-                  type="button"
-                  key={concern.id}
-                  className="concern-button"
-                  aria-pressed={concern.id === selected.id}
-                  aria-controls="patient-result"
-                  onClick={() => chooseConcern(concern)}
-                >
-                  <ConcernIcon concern={concern} />
-                  <span>{concern.label}</span>
-                  <span className="concern-check" aria-hidden="true">
-                    {concern.id === selected.id ? "✓" : "+"}
-                  </span>
-                </button>
-              ))}
-            </div>
-            <div className="patient-choice-note">
-              しわ・輪郭の原因によって、合う治療は異なります。気になる症状を、診察でもお伝えください。
-            </div>
-          </section>
-
           <section
             className="patient-result"
             id="patient-result"
@@ -185,46 +143,12 @@ export default function PatientApp() {
           >
             <div className="patient-result-top">
               <div>
-                <p className="patient-kicker">選んだお悩み</p>
                 <h2 id="result-heading">{selected.label}</h2>
-                <p>{selected.treatment}</p>
               </div>
               <span className="patient-selection-status" role="status">
                 {selected.shortName}を表示中
               </span>
             </div>
-            <div className="patient-location">
-              <span className="patient-map-dot" aria-hidden="true" />
-              <div>
-                <h3>このあたりに注射を検討します</h3>
-                <p>{selected.location}</p>
-              </div>
-            </div>
-
-            {selected.variants && (
-              <fieldset className="patient-variants">
-                <legend>
-                  施術範囲を選ぶ <span>料金は税込</span>
-                </legend>
-                <div>
-                  {selected.variants.map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      aria-pressed={variant?.id === item.id}
-                      onClick={() => {
-                        setVariantId(item.id);
-                        setExample("expected");
-                      }}
-                    >
-                      <span>{item.label}</span>
-                      <strong>{yen(item.price.yen)}</strong>
-                    </button>
-                  ))}
-                </div>
-                <p>{selected.availability}</p>
-              </fieldset>
-            )}
 
             <section
               className={
@@ -233,61 +157,68 @@ export default function PatientApp() {
               }
               aria-label="施術前と変化の比較"
             >
-              <div className="patient-comparison-tools">
-                <h3>施術前・施術後を見比べる</h3>
-                <div className="patient-view-controls">
-                <button
-                  type="button"
-                  aria-pressed={zoom}
-                  onClick={() => setZoom((value) => !value)}
+              {comparisonLayout === "switch" && (
+                <div
+                  className="patient-phase-switch"
+                  role="group"
+                  aria-label="同じ位置で前後を切り替える"
                 >
-                  {zoom ? "顔全体に戻す" : "部位を拡大"}
-                  <span aria-hidden="true"> ↗</span>
-                </button>
-                <button type="button" aria-pressed={showAreas} onClick={() => setShowAreas(value => !value)}>打つ範囲を重ねる</button>
-                </div>
-              </div>
-              <div
-                className="patient-example-switch"
-                role="group"
-                aria-label="変化の例を切り替える"
-              >
-                {EXAMPLES.map((item) => (
                   <button
                     type="button"
-                    key={item.id}
-                    aria-pressed={example === item.id}
-                    onClick={() => { setExample(item.id); setComparisonPhase("after"); }}
+                    aria-pressed={comparisonPhase === "before"}
+                    aria-controls="patient-before-figure"
+                    onClick={() => setComparisonPhase("before")}
                   >
-                    {item.label}
+                    施術前
                   </button>
-                ))}
-              </div>
-              <p className="patient-comparison-focus"><strong>見るポイント</strong><span>{selected.id === "eyes" && example === "adverse" ? "目を閉じようとしたときの、左右の違い" : selected.comparisonFocus}</span></p>
-              <div className="patient-layout-switch" role="group" aria-label="比較の見方">
-                <button type="button" aria-pressed={comparisonLayout === "pair"} onClick={() => setComparisonLayout("pair")}>並べて比較</button>
-                <button type="button" aria-pressed={comparisonLayout === "switch"} onClick={() => setComparisonLayout("switch")}>同じ位置で切り替え</button>
-              </div>
-              {comparisonLayout === "switch" && <div className="patient-phase-switch" role="group" aria-label="同じ位置で前後を切り替える">
-                <button type="button" aria-pressed={comparisonPhase === "before"} aria-controls="patient-before-figure" onClick={() => setComparisonPhase("before")}>施術前</button>
-                <button type="button" aria-pressed={comparisonPhase === "after"} aria-controls="patient-after-figure" onClick={() => setComparisonPhase("after")}>{example === "expected" ? "施術後の例" : EXAMPLES.find(item => item.id === example)?.label}</button>
-              </div>}
-              <div className="patient-face-pair" data-layout={comparisonLayout} data-zoom={zoom}>
-                <figure id="patient-before-figure" hidden={comparisonLayout === "switch" && comparisonPhase !== "before"}>
+                  <button
+                    type="button"
+                    aria-pressed={comparisonPhase === "after"}
+                    aria-controls="patient-after-figure"
+                    onClick={() => setComparisonPhase("after")}
+                  >
+                    {example === "expected"
+                      ? "施術後の例"
+                      : EXAMPLES.find((item) => item.id === example)?.label}
+                  </button>
+                </div>
+              )}
+              <div
+                className="patient-face-pair"
+                data-layout={comparisonLayout}
+                data-zoom={zoom}
+              >
+                <figure
+                  id="patient-before-figure"
+                  hidden={
+                    comparisonLayout === "switch" &&
+                    comparisonPhase !== "before"
+                  }
+                >
                   <div className="patient-face-label">施術前</div>
                   <ClinicalFace
                     {...faceProps}
                     before
                     accessibleLabel={
                       (variant?.label ?? selected.shortName) +
-                      "の施術前。" + (showAreas ? "ピンクは施術を検討するおおよその範囲" : selected.beforeCaption)
+                      "の施術前。" +
+                      (showAreas
+                        ? "ピンクは施術を検討するおおよその範囲"
+                        : selected.beforeCaption)
                     }
                   />
                   <figcaption>{selected.beforeCaption}</figcaption>
                 </figure>
-                <figure id="patient-after-figure" hidden={comparisonLayout === "switch" && comparisonPhase !== "after"}>
+                <figure
+                  id="patient-after-figure"
+                  hidden={
+                    comparisonLayout === "switch" && comparisonPhase !== "after"
+                  }
+                >
                   <div className="patient-face-label">
-                    {example === "expected" ? "施術後の例" : EXAMPLES.find((item) => item.id === example)?.label}
+                    {example === "expected"
+                      ? "施術後の例"
+                      : EXAMPLES.find((item) => item.id === example)?.label}
                   </div>
                   {selected.id === "neck" && example === "adverse" ? (
                     <div className="patient-unseen-risk">
@@ -318,21 +249,119 @@ export default function PatientApp() {
                   <figcaption>{afterCaption}</figcaption>
                 </figure>
               </div>
-              {showAreas && <p className="patient-figure-note">
-                <span className="patient-map-dot" aria-hidden="true" />
-                ピンクはおおよその施術範囲。正確な位置は診察で決めます。
-              </p>}
-              {zoom && selected.id === "eyes" && example !== "adverse" && <p className="patient-crop-note">見やすいように片側の目尻を拡大しています。左右の様子は「顔全体に戻す」で確認できます。</p>}
-              <p className="patient-illustration-note">
-                変化を強調した説明図です。実際の変化の程度や、副作用の発生を予測するものではありません。
+              <section
+                id="patient-concerns"
+                className="patient-choices"
+                aria-labelledby="concern-heading"
+              >
+                <div className="patient-step-heading">
+                  <span>01</span>
+                  <h2 id="concern-heading">気になるお悩みを選ぶ</h2>
+                </div>
+                <p className="patient-helper">
+                  横にスワイプ → 気になるボタンを押してください。
+                </p>
+                <div className="concern-carousel">
+                  {PATIENT_CONCERNS.map((concern) => (
+                    <button
+                      type="button"
+                      key={concern.id}
+                      className="concern-button"
+                      aria-pressed={concern.id === selected.id}
+                      aria-controls="patient-result"
+                      onClick={() => chooseConcern(concern)}
+                    >
+                      <ConcernIcon concern={concern} />
+                      <span>{concern.label}</span>
+                      <span className="concern-check" aria-hidden="true">
+                        {concern.id === selected.id ? "✓" : "+"}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </section>
+
+              <div className="patient-comparison-tools">
+                <h3>見え方を変える</h3>
+                <div className="patient-view-controls">
+                  <button
+                    type="button"
+                    aria-pressed={zoom}
+                    onClick={() => setZoom((value) => !value)}
+                  >
+                    {zoom ? "顔全体に戻す" : "部位を拡大"}
+                    <span aria-hidden="true"> ↗</span>
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={showAreas}
+                    onClick={() => setShowAreas((value) => !value)}
+                  >
+                    打つ範囲を重ねる
+                  </button>
+                </div>
+              </div>
+              <div
+                className="patient-example-switch"
+                role="group"
+                aria-label="変化の例を切り替える"
+              >
+                {EXAMPLES.map((item) => (
+                  <button
+                    type="button"
+                    key={item.id}
+                    aria-pressed={example === item.id}
+                    onClick={() => {
+                      setExample(item.id);
+                      setComparisonPhase("after");
+                    }}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+              <p className="patient-comparison-focus">
+                <strong>見るポイント</strong>
+                <span>
+                  {selected.id === "eyes" && example === "adverse"
+                    ? "目を閉じようとしたときの、左右の違い"
+                    : selected.comparisonFocus}
+                </span>
               </p>
-              {example === "limited" && (
-                <p className="patient-example-message" role="status">
-                  {micro
-                    ? "毛穴の目立ちやテカリが、期待したほど変わらない場合もあります。肌の状態や原因によって、変化の感じ方は異なります。"
-                    : "期待した変化が得られないこともあります。原因や筋肉の動きなどにより、しわや症状が残る場合があります。"}
+              <div
+                className="patient-layout-switch"
+                role="group"
+                aria-label="比較の見方"
+              >
+                <button
+                  type="button"
+                  aria-pressed={comparisonLayout === "pair"}
+                  onClick={() => setComparisonLayout("pair")}
+                >
+                  並べて比較
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={comparisonLayout === "switch"}
+                  onClick={() => setComparisonLayout("switch")}
+                >
+                  同じ位置で切り替え
+                </button>
+              </div>
+              {showAreas && (
+                <p className="patient-figure-note">
+                  <span className="patient-map-dot" aria-hidden="true" />
+                  ピンクはおおよその施術範囲。正確な位置は診察で決めます。
                 </p>
               )}
+              {zoom && selected.id === "eyes" && example !== "adverse" && (
+                <p className="patient-crop-note">
+                  見やすいように片側の目尻を拡大しています。左右の様子は「顔全体に戻す」で確認できます。
+                </p>
+              )}
+              <p className="patient-illustration-note">
+                前後の違いを見やすくするため、施術後の図では対象のしわを省略しています。実際の仕上がりや副作用を予測・保証するものではありません。
+              </p>
               {example === "adverse" && (
                 <p className="patient-example-message risk" role="status">
                   {selected.adverseCaption}
@@ -340,6 +369,40 @@ export default function PatientApp() {
                 </p>
               )}
             </section>
+
+            <div className="patient-location">
+              <span className="patient-map-dot" aria-hidden="true" />
+              <div>
+                <h3>{selected.treatment}</h3>
+                <p>このあたりに注射を検討します</p>
+                <p>{selected.location}</p>
+              </div>
+            </div>
+
+            {selected.variants && (
+              <fieldset className="patient-variants">
+                <legend>
+                  施術範囲を選ぶ <span>料金は税込</span>
+                </legend>
+                <div>
+                  {selected.variants.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      aria-pressed={variant?.id === item.id}
+                      onClick={() => {
+                        setVariantId(item.id);
+                        setExample("expected");
+                      }}
+                    >
+                      <span>{item.label}</span>
+                      <strong>{yen(item.price.yen)}</strong>
+                    </button>
+                  ))}
+                </div>
+                <p>{selected.availability}</p>
+              </fieldset>
+            )}
 
             <div id="patient-fees" className="patient-facts">
               <section
@@ -423,6 +486,7 @@ export default function PatientApp() {
                   aria-pressed={example === "adverse"}
                   onClick={() => {
                     setExample(example === "adverse" ? "expected" : "adverse");
+                    setComparisonPhase("after");
                     resultRef.current?.scrollIntoView?.({
                       behavior: "instant",
                       block: "start",
@@ -456,6 +520,17 @@ export default function PatientApp() {
           <p>
             図と費用は相談のための目安です。持病、服用中の薬、妊娠・授乳、これまでの施術歴なども医師にお伝えください。
           </p>
+          <p className="patient-disclaimer">
+            診察前の説明用です。図は仕上がりの予測ではありません。治療が合うかどうかは医師が診察で判断します。
+          </p>
+          <a
+            className="patient-clinic-info-button"
+            href="https://ueno-iin-biyou-miwa.com/siwa/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            医院のボトックス案内を見る<span aria-hidden="true">↗</span>
+          </a>
           <details>
             <summary>使用薬剤・料金の出典について</summary>
             <p>
@@ -499,7 +574,14 @@ export default function PatientApp() {
         <a href="#patient-risks">副作用</a>
       </nav>
       <footer className="patient-footer">
-        <a className="patient-clinic-info-button" href="https://ueno-iin-biyou-miwa.com/siwa/" target="_blank" rel="noreferrer">医院のボトックス案内を見る<span aria-hidden="true">↗</span></a>
+        <a
+          className="patient-clinic-info-button"
+          href="https://ueno-iin-biyou-miwa.com/siwa/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          医院のボトックス案内を見る<span aria-hidden="true">↗</span>
+        </a>
         <p>ぽちっとしわとり · 患者さん向け相談版</p>
         <span>医療行為や医師の診察を代替するものではありません。</span>
       </footer>

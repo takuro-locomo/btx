@@ -3,8 +3,8 @@ import type { ClinicalModelResult, ClinicalSettings } from "../types/botox";
 
 // Native SVG expressions over the existing illustration. All distances are drawing
 // units, intentionally emphasized for comparison, not estimates of clinical change.
-export function ClinicalFeatures({ settings, model, before, motion = 1 }: {
-  settings: ClinicalSettings; model: ClinicalModelResult; before: boolean; motion?: number;
+export function ClinicalFeatures({ settings, model, before, motion = 1, hideSelectedWrinkles = false }: {
+  settings: ClinicalSettings; model: ClinicalModelResult; before: boolean; motion?: number; hideSelectedWrinkles?: boolean;
 }) {
   const uid = useId().replace(/:/g, "");
   const e = settings.expression / 100 * motion;
@@ -81,7 +81,7 @@ export function ClinicalFeatures({ settings, model, before, motion = 1 }: {
       <path d={`M${leftX} ${corner} Q185 ${topLeft - 1} 195 ${topLeft} L200 ${topLeft + 2} L205 ${topRight} Q215 ${topRight - 1} ${rightX} ${corner}`} stroke="#b78275" strokeWidth=".75" fill="none" />
       {a > .15 && <path d={`M${rightX + 4} 230 v${6 + a * 7} l-2 -3 m2 3 l2 -3`} stroke="#b13d54" strokeWidth="1" fill="none" />}
     </g>}
-    {region === "chin" && <g fill="none" stroke="#ad7a6a" strokeWidth="1" opacity={.12 + active * .65} data-feature="chin-dimples">
+    {region === "chin" && <g fill="none" stroke="#ad7a6a" strokeWidth="1" opacity={!before && hideSelectedWrinkles ? 0 : .12 + active * .65} data-feature="chin-dimples">
       {[188, 196, 204, 212].map((x, i) => <path key={x} d={`M${x} ${260 + i % 2 * 4} q-2 3 1 4 M${x + 2} ${269 - i % 2 * 2} q1 2 3 1`} />)}
     </g>}
     {region === "masseter" && <g data-feature="masseter-bulge" fill="#efd0c3" stroke="#c39483" strokeWidth=".7">
