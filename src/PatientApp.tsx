@@ -116,8 +116,8 @@ export default function PatientApp() {
     <div className="clinical-app patient-app">
       <header className="patient-header">
         <a href="https://ueno-iin-biyou-miwa.com/" className="patient-clinic">
-          長野市三輪 <strong>上野医院</strong>
-          <span>美容皮膚科</span>
+          <img className="patient-clinic-logo" src="/ueno-clinic-logo.png" alt="上野医院 UENO CLINIC" width={250} height={82} />
+          <small>長野市 三輪｜美容皮膚科</small>
         </a>
         <span className="patient-header-tag">診察前のご相談ガイド</span>
       </header>
@@ -133,6 +133,7 @@ export default function PatientApp() {
           <p className="patient-disclaimer">
             診察前の説明用です。図は仕上がりの予測ではありません。治療が合うかどうかは医師が診察で判断します。
           </p>
+          <a className="patient-clinic-info-button" href="https://ueno-iin-biyou-miwa.com/siwa/" target="_blank" rel="noreferrer">医院のボトックス案内を見る<span aria-hidden="true">↗</span></a>
         </div>
 
         <div className="patient-layout">
@@ -479,7 +480,8 @@ export default function PatientApp() {
         <a href="#patient-risks">副作用</a>
       </nav>
       <footer className="patient-footer">
-        ぽちっとしわとり · 患者さん向け相談版
+        <a className="patient-clinic-info-button" href="https://ueno-iin-biyou-miwa.com/siwa/" target="_blank" rel="noreferrer">医院のボトックス案内を見る<span aria-hidden="true">↗</span></a>
+        <p>ぽちっとしわとり · 患者さん向け相談版</p>
         <span>医療行為や医師の診察を代替するものではありません。</span>
       </footer>
     </div>

@@ -21,25 +21,13 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 23px 28px;
+  padding: 10px 28px;
+  background: white;
   border-bottom: 1px solid #efdee4;
 }
-.patient-clinic {
-  display: flex;
-  align-items: baseline;
-  gap: 9px;
-  font-size: .875rem;
-  text-decoration: none;
-  color: #776873 !important;
-}
-.patient-clinic strong {
-  font-size: 21px;
-  font-weight: 700;
-  color: #663e50;
-}
-.patient-clinic span {
-  font-size: .8125rem;
-}
+.patient-clinic { display: flex; flex-direction: column; align-items: flex-start; gap: 0; text-decoration: none; color: #776873 !important; }
+.patient-clinic-logo { display: block; width: 200px; height: auto; }
+.patient-clinic small { font-size: .8125rem; margin-left: 25px; }
 .patient-header-tag {
   font-size: .8125rem;
   color: #8a6c7a;
@@ -713,14 +701,8 @@
   .patient-header {
     padding: 13px 16px;
   }
-  .patient-clinic {
-    font-size: .8125rem;
-    gap: 6px;
-  }
-  .patient-clinic strong {
-    font-size: 18px;
-  }
-  .patient-clinic span,
+  .patient-clinic-logo { width: 180px; }
+  .patient-clinic small { margin-left: 22px; }
   .patient-header-tag {
     display: none;
   }
@@ -887,3 +869,9 @@
   .patient-face-pair figcaption, .patient-face-label { font-size: .8125rem; }
   .patient-price { white-space: normal; }
 }
+
+.patient-app .patient-clinic-info-button { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; max-width: 100%; margin-top: 18px; padding: 12px 16px; border: 1px solid #c28ba1; border-radius: 9px; background: white; color: #963858; font-size: .9375rem; font-weight: 650; line-height: 1.6; text-decoration: none; }
+.patient-app .patient-clinic-info-button:hover { background: #fbeaf1; border-color: #a93f65; }
+.patient-app .patient-clinic-info-button > span { display: inline; flex-shrink: 0; margin: 0; font-size: inherit; }
+.patient-footer .patient-clinic-info-button { margin: 0 0 18px; }
+@media (max-width: 540px) { .patient-app .patient-clinic-info-button { width: 100%; font-size: .875rem; } }
